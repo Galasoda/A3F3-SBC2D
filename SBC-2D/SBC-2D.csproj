@@ -236,6 +236,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructures\Ini\IniFile.cs" />
+    <Compile Include="Shared\CompareIgnoreAttribute.cs" />
     <Compile Include="Shared\Enums.cs" />
     <Compile Include="Shared\Helper.cs" />
     <Compile Include="Views\Forms\copy.cs" />
@@ -257,6 +258,7 @@
     <Compile Include="Views\Interfaces\IForm3View.cs" />
     <Compile Include="Views\Interfaces\IIoView.cs" />
     <Compile Include="Views\Interfaces\IRecipeView.cs" />
+    <Compile Include="Views\Interfaces\IZeroingView.cs" />
     <Compile Include="Views\Theme\AppTheme.cs" />
     <Compile Include="Views\Forms\Form3.cs">
       <SubType>Form</SubType>

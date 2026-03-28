@@ -51,7 +51,9 @@
             this.labelUserRole = new System.Windows.Forms.Label();
             this.panelTopbar = new System.Windows.Forms.Panel();
             this.buttonStopAlarm = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.panelBottombar.SuspendLayout();
+            this.panelPage.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -125,6 +127,7 @@
             // 
             // panelPage
             // 
+            this.panelPage.Controls.Add(this.button1);
             this.panelPage.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelPage.Location = new System.Drawing.Point(0, 80);
             this.panelPage.Name = "panelPage";
@@ -170,7 +173,7 @@
             this.label333.Location = new System.Drawing.Point(4, 4);
             this.label333.Margin = new System.Windows.Forms.Padding(4);
             this.label333.Name = "label333";
-            this.label333.Size = new System.Drawing.Size(72, 16);
+            this.label333.Size = new System.Drawing.Size(71, 16);
             this.label333.TabIndex = 16;
             this.label333.Text = "設備狀態";
             // 
@@ -185,7 +188,7 @@
             this.labelStatus.Location = new System.Drawing.Point(4, 28);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(4);
             this.labelStatus.Name = "labelStatus";
-            this.labelStatus.Size = new System.Drawing.Size(72, 16);
+            this.labelStatus.Size = new System.Drawing.Size(71, 16);
             this.labelStatus.TabIndex = 17;
             this.labelStatus.Text = "123";
             // 
@@ -213,7 +216,7 @@
             this.label222.Location = new System.Drawing.Point(4, 4);
             this.label222.Margin = new System.Windows.Forms.Padding(4);
             this.label222.Name = "label222";
-            this.label222.Size = new System.Drawing.Size(72, 16);
+            this.label222.Size = new System.Drawing.Size(71, 16);
             this.label222.TabIndex = 16;
             this.label222.Text = "模組名稱";
             // 
@@ -228,7 +231,7 @@
             this.labelModelName.Location = new System.Drawing.Point(4, 28);
             this.labelModelName.Margin = new System.Windows.Forms.Padding(4);
             this.labelModelName.Name = "labelModelName";
-            this.labelModelName.Size = new System.Drawing.Size(72, 16);
+            this.labelModelName.Size = new System.Drawing.Size(71, 16);
             this.labelModelName.TabIndex = 17;
             this.labelModelName.Text = "3221";
             // 
@@ -271,7 +274,7 @@
             this.label111.Location = new System.Drawing.Point(4, 4);
             this.label111.Margin = new System.Windows.Forms.Padding(4);
             this.label111.Name = "label111";
-            this.label111.Size = new System.Drawing.Size(72, 16);
+            this.label111.Size = new System.Drawing.Size(71, 16);
             this.label111.TabIndex = 16;
             this.label111.Text = "SBC-2D";
             // 
@@ -286,7 +289,7 @@
             this.labelVersion.Location = new System.Drawing.Point(4, 28);
             this.labelVersion.Margin = new System.Windows.Forms.Padding(4);
             this.labelVersion.Name = "labelVersion";
-            this.labelVersion.Size = new System.Drawing.Size(72, 16);
+            this.labelVersion.Size = new System.Drawing.Size(71, 16);
             this.labelVersion.TabIndex = 17;
             this.labelVersion.Text = "20251210";
             // 
@@ -314,7 +317,7 @@
             this.label444.Location = new System.Drawing.Point(4, 4);
             this.label444.Margin = new System.Windows.Forms.Padding(4);
             this.label444.Name = "label444";
-            this.label444.Size = new System.Drawing.Size(56, 16);
+            this.label444.Size = new System.Drawing.Size(55, 16);
             this.label444.TabIndex = 16;
             this.label444.Text = "使用者";
             // 
@@ -329,7 +332,7 @@
             this.labelUserRole.Location = new System.Drawing.Point(4, 28);
             this.labelUserRole.Margin = new System.Windows.Forms.Padding(4);
             this.labelUserRole.Name = "labelUserRole";
-            this.labelUserRole.Size = new System.Drawing.Size(56, 16);
+            this.labelUserRole.Size = new System.Drawing.Size(55, 16);
             this.labelUserRole.TabIndex = 17;
             this.labelUserRole.Text = "123";
             // 
@@ -363,6 +366,16 @@
             this.buttonStopAlarm.Text = "停止警報";
             this.buttonStopAlarm.UseVisualStyleBackColor = false;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(295, 187);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 27;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -376,6 +389,7 @@
             this.Text = "FormMain";
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.panelBottombar.ResumeLayout(false);
+            this.panelPage.ResumeLayout(false);
             this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel3.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
@@ -413,5 +427,6 @@
         private System.Windows.Forms.Button buttonForm3;
         private System.Windows.Forms.Button buttonForm2;
         private System.Windows.Forms.Button buttonStopAlarm;
+        private System.Windows.Forms.Button button1;
     }
 }

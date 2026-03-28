@@ -20,20 +20,21 @@ namespace SBC_2D.Domain.Servicies
             _store = store;
         }
 
-        public string GetName()
+        public string GetCurrentRecipeName()
         {
             string section = "Production";
-            string key = "ModelName";
+            string key = "RecipeName";
             string defaultValue = "";
             if (!IniFile.TryGetValue(section, key, defaultValue, _store.SetupFilePath, out string modelName))
                 return defaultValue;
             return modelName;
         }
 
-        public void SaveName(string name)
+        public void SaveCurrentRecipeName(string name)
         {
             string section = "Production";
-            string key = "ModelName";
+            string key = "RecipeName";
+            IniFile.Write(section, key, name, _store.SetupFilePath);
         }
 
         public Setup GetSetup()
@@ -160,10 +161,10 @@ namespace SBC_2D.Domain.Servicies
             else
                 config.Pqty = pqty;
 
-            if (!IniFile.TryGetValue(section, "ModelName", "", _store.SetupFilePath, out string modelName))
+            if (!IniFile.TryGetValue(section, "RecipeName", "", _store.SetupFilePath, out string name))
                 bugInfo += "Missing ModelName.\r\n";
             else
-                config.ModelName = modelName;
+                config.RecipeName = name;
 
             if (!IniFile.TryGetValue(section, "Delay_BoardStopAck", "", _store.SetupFilePath, out string delayBoardStopAckStr) ||
                 !long.TryParse(delayBoardStopAckStr, out long delayBoardStopAck))

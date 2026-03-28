@@ -36,7 +36,7 @@ namespace SBC_2D.Infrastructures.Ini
 
     public class ProductionConfig
     {
-        public string ModelName { get; set; }
+        public string RecipeName { get; set; }
         public int Pqty { get; set; }
         public long Delay_BoardStopAck { get; set; }
         public long Timeout_WaitStopper { get; set; }

@@ -4,6 +4,8 @@ using SBC_2D.Infrastructures.Recipe;
 using SBC_2D.Servicies;
 using SBC_2D.Shared;
 using SBC_2D.Views;
+using SBC_2D.Views.Forms;
+using SBC_2D.Views.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,12 +23,14 @@ namespace SBC_2D.Presenters
         private readonly RecipeService _recipeService;
         private readonly IniService _iniService;
         private readonly IRecipeView _recipeView;
+        private IZeroingView _zeroingView;
         private bool _isOnEdit;
         private Recipe _editedRecipe;
         private Recipe _currentRecipe;
         private List<string> _allRecipeNames;
         private string _selectedName = "";
-        public RecipeManageViewMode ViewModeAction { get; private set; }
+        private RecipeManageViewMode _recipeManageViewMode;
+        private readonly Dictionary<string, PropertyInfo> _propertyCache;
 
         // Events
         public event Action<Recipe> RecipeChanged;
@@ -38,6 +42,9 @@ namespace SBC_2D.Presenters
             _recipeService = recipeService;
             _iniService = iniService;
             _recipeView = recipeView;
+            _editedRecipe = new Recipe();
+            _currentRecipe = new Recipe();
+            _propertyCache = typeof(Recipe).GetProperties().ToDictionary(p => p.Name);
             _allRecipeNames = new List<string>();
         }
 
@@ -61,28 +68,31 @@ namespace SBC_2D.Presenters
             _recipeView.BlockNumYChanged += RecipeView_BlockNumYChanged;
             _recipeView.PcbCountChanged += RecipeView_PcbCountChanged;
             _recipeView.RotateChanged += RecipeView_RotateChanged;
+            _recipeView.ThicknessZeroingViewOpend += RecipeView_ThicknessZeroingViewOpened;
 
             _isOnEdit = false;
             _recipeView.SetEditMode(_isOnEdit);
-            ViewModeAction = RecipeManageViewMode.Nothing;
-            _recipeView.SetViewMode(ViewModeAction);
+            _recipeManageViewMode = RecipeManageViewMode.Nothing;
+            _recipeView.SetViewMode(_recipeManageViewMode);
         }
 
         private void RecipeView_Initialized(object sender, EventArgs e)
         {
             List<string> names = _recipeService.GetAllNames();
-            string name = _iniService.GetName() ?? string.Empty;
-            Recipe recipe = _recipeService.Get(name);
-            _currentRecipe = recipe.DeepClone() ?? new Recipe();
-            _editedRecipe = recipe.DeepClone() ?? new Recipe();
+            string name = _iniService.GetCurrentRecipeName() ?? string.Empty;
+            Recipe recipe = _recipeService.Get(name) ?? new Recipe();
             _allRecipeNames = names;
             _recipeView.ShowRecipeNames(names);
-            _recipeView.ShowRecipe(recipe);
-            RecipeChanged?.Invoke(recipe);
+            Load(name);
+            //_currentRecipe = recipe.DeepClone();
+            //_editedRecipe = recipe.DeepClone();
+            //_recipeView.ShowRecipe(recipe);
+            //_recipeView.ShowHintForSave(false);
+            //RecipeChanged?.Invoke(recipe);
         }
 
         private void RecipeView_LdsBypassChanged(object sender, bool e)
-            => Edit(nameof(Recipe.IsLdsBypass), false);
+            => Edit(nameof(Recipe.IsLdsBypass), e);
 
         private void RecipeView_LowerBrBypassChanged(object sender, bool e)
         {
@@ -168,7 +178,7 @@ namespace SBC_2D.Presenters
                 }
             }
 
-            ViewModeAction = action;
+            _recipeManageViewMode = action;
             _recipeView.SetViewMode(action);
             if (action == RecipeManageViewMode.Delete ||
                 action == RecipeManageViewMode.Open)
@@ -178,26 +188,25 @@ namespace SBC_2D.Presenters
         private void RecipeView_ActionConfirmed(object sender, string name)
         {
             string message = string.Empty;
-            bool success = false;
 
-            switch (ViewModeAction)
+            switch (_recipeManageViewMode)
             {
                 case RecipeManageViewMode.Open:
                     if (string.IsNullOrWhiteSpace(name))
                         break;
-                    success = Load(name);
+                    Load(name);
                     break;
 
                 case RecipeManageViewMode.Save:
-                    success = Save(out message);
+                    Save(out message);
                     break;
 
                 case RecipeManageViewMode.SaveAs:
-                    success = SaveNew(name, out message);
+                    SaveNew(name, out message);
                     break;
 
                 case RecipeManageViewMode.Delete:
-                    success = Delete(name, out message);
+                    Delete(name, out message);
                     break;
 
                 default:
@@ -207,13 +216,13 @@ namespace SBC_2D.Presenters
             //if (!string.IsNullOrEmpty(message))
             //    _recipeView.ShowMessageBox(message);
 
-            ViewModeAction = RecipeManageViewMode.Nothing;
+            _recipeManageViewMode = RecipeManageViewMode.Nothing;
             _recipeView.SetViewMode(RecipeManageViewMode.Nothing);
         }
 
         private void RecipeView_ActionCancelled(object sender, EventArgs e)
         {
-            ViewModeAction = RecipeManageViewMode.Nothing;
+            _recipeManageViewMode = RecipeManageViewMode.Nothing;
             _selectedName = _currentRecipe?.Name ?? "";
             _recipeView.SetSelectedName(_currentRecipe?.Name ?? "");
             _recipeView.SetViewMode(RecipeManageViewMode.Nothing);
@@ -228,27 +237,23 @@ namespace SBC_2D.Presenters
         private void RecipeView_ModelNameSelectChanged(object sender, string e)
             => _selectedName = e;
 
-        public bool Load(string name)
+        public void Load(string name)
         {
-            Recipe recipe = _recipeService.Get(name);
-            _currentRecipe = recipe.DeepClone() ??  new Recipe();
-            _editedRecipe = recipe.DeepClone() ?? new Recipe();
-            _recipeView.ShowRecipe(recipe);
-            RecipeChanged?.Invoke(recipe);
-            return true;
+            Recipe recipe = _recipeService.Get(name) ?? new Recipe();
+            ChangeRecipe(recipe);
         }
 
-        public bool Save(out string message)
+        public void Save(out string message)
         {
             bool isSaved = _recipeService.Save(_editedRecipe, out message);
             if (isSaved)
             {
                 _currentRecipe = _editedRecipe.DeepClone();
+                _recipeView.ShowHintForSave(false);
             }
-            return isSaved;
         }
 
-        public bool SaveNew(string newName, out string message)
+        public void SaveNew(string newName, out string message)
         {
             Recipe newRecipe = _editedRecipe.DeepClone();
             newRecipe.Name = newName;
@@ -256,15 +261,13 @@ namespace SBC_2D.Presenters
             if (isCreated)
             {
                 _allRecipeNames.Add(newName);
-                _currentRecipe = newRecipe.DeepClone();
-                _editedRecipe = newRecipe.DeepClone();
                 _recipeView.ShowRecipeNames(_allRecipeNames);
                 _recipeView.SetSelectedName(newRecipe.Name);
+                ChangeRecipe(newRecipe);
             }
-            return isCreated;
         }
 
-        public bool Delete(string name, out string message)
+        public void Delete(string name, out string message)
         {
             bool isDeleted = _recipeService.Delete(name, out message);
             if (isDeleted)
@@ -275,39 +278,68 @@ namespace SBC_2D.Presenters
                     Load(_allRecipeNames.First());
                 else
                 {
-                    _currentRecipe = new Recipe();
-                    _editedRecipe = new Recipe();
+                    ChangeRecipe(new Recipe());
                     _selectedName = string.Empty;
-                    _recipeView.ShowRecipe(_currentRecipe);
-                    RecipeChanged?.Invoke(_currentRecipe);
                 }
             }
-            return isDeleted;
         }
 
-        private bool Edit(string propertyName, object value)
+        private void Edit(string propertyName, object value)
         {
-            PropertyInfo[] propertys = typeof(Recipe).GetProperties();
             try
             {
                 if (string.IsNullOrWhiteSpace(propertyName))
                     propertyName = "";
-                PropertyInfo property = propertys.FirstOrDefault(p => p.Name == propertyName);
+                PropertyInfo property = _propertyCache[propertyName];
                 object typedValue = Helper.ConvertValue(property.PropertyType, value);
                 property.SetValue(_editedRecipe, typedValue);
-                return true;
+                bool isValueChanged = !_editedRecipe.Equals(_currentRecipe);
+                _recipeView.ShowHintForSave(isValueChanged);
             }
             catch (Exception ex)
             {
                 //message = $"Cant not edit recipy because invalid value for '{propertyName}'.";
-                return false;
             }
+        }
+
+        private void ChangeRecipe(Recipe recipe)
+        {
+            _currentRecipe = recipe.DeepClone();
+            _editedRecipe = recipe.DeepClone();
+            _recipeView.ShowRecipe(recipe);
+            _recipeView.ShowHintForSave(false);
+            _iniService.SaveCurrentRecipeName(_currentRecipe.Name);
+            //_selectedName = _currentRecipe.Name;
+            RecipeChanged?.Invoke(recipe);
         }
 
         public void RequestAction(RecipeManageViewMode action)
         {
-            ViewModeAction = action;
+            _recipeManageViewMode = action;
             _recipeView.SetViewMode(action);
+        }
+
+        private void RecipeView_ThicknessZeroingViewOpened(object _, IZeroingView zeroingView)
+        {
+            UnsubscribeZeroingView();
+            _zeroingView = zeroingView;
+            _zeroingView.ThicknessZeroBiasChanged += ZeroingView_ThicknessZeroBiasChanged;
+            _zeroingView.ViewClosed += ZeroingView_OnZeroingViewClosed;
+            _zeroingView.SetThicknessZeroBias(_editedRecipe.ThicknessZeroBias.ToString());
+        }
+
+        private void ZeroingView_ThicknessZeroBiasChanged(object sender, string e)
+            => Edit(nameof(Recipe.ThicknessZeroBias), e);
+
+        private void ZeroingView_OnZeroingViewClosed(object sender, EventArgs e)
+            => UnsubscribeZeroingView();
+
+        private void UnsubscribeZeroingView()
+        {
+            if (_zeroingView == null) return;
+            _zeroingView.ThicknessZeroBiasChanged -= ZeroingView_ThicknessZeroBiasChanged;
+            _zeroingView.ViewClosed -= ZeroingView_OnZeroingViewClosed;
+            _zeroingView = null;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SBC_2D.Infrastructures;
 using SBC_2D.Presenters;
+using SBC_2D.Views.Forms;
 using SBC_2D.Views.Interfaces;
 using System;
 using System.Drawing;
@@ -76,6 +77,12 @@ namespace SBC_2D.Views
             => labelStatus.Text = status;
         public void SetUserRole(string role)
             => labelUserRole.Text = role;
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var a = new FormZeroing();
+            a.Show();
+        }
     }
 }
 

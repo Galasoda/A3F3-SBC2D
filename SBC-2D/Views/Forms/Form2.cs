@@ -3,6 +3,8 @@ using SBC_2D.Infrastructures.Recipe;
 using SBC_2D.Presenters;
 using SBC_2D.Servicies;
 using SBC_2D.Shared;
+using SBC_2D.Views.Forms;
+using SBC_2D.Views.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -32,6 +34,7 @@ namespace SBC_2D.Views
         public event EventHandler<string> BlockNumYChanged;
         public event EventHandler<int> PcbCountChanged;
         public event EventHandler<bool> RotateChanged;
+        public event EventHandler<IZeroingView> ThicknessZeroingViewOpend;
 
         public Form2()
         {
@@ -98,6 +101,12 @@ namespace SBC_2D.Views
             comboBoxRecipes.Items.AddRange(names.ToArray());
         }
 
+        public void ShowHintForSave(bool isEnable)
+        {
+            buttonCanSaveRecipe.BackColor =  isEnable ? Color.Yellow : AppTheme.Surface;
+            buttonCanSaveasRecipe.BackColor =  isEnable ? Color.Yellow : AppTheme.Surface;
+        }
+
         public void RemoveRecipeName(string name)
         {
             comboBoxRecipes.Items.Remove(name);
@@ -140,7 +149,6 @@ namespace SBC_2D.Views
             textBoxPcbThickness.Text = recipe.Thickness.ToString();
             textBoxThicknessTolrence.Text = recipe.ThicknessPosTolerance.ToString();
             labelPcbMaxThickness.Text = (recipe.Thickness + recipe.ThicknessPosTolerance).ToString();
-            textBoxThicknessZeroBias.Text = recipe.ThicknessZeroBias.ToString();
             textBoxSubstrateBlockX.Text = recipe.PcbBlockX.ToString();
             textBoxSubstrateBlockY.Text = recipe.PcbBlockY.ToString();
             textBoxSubstrateBlockNumX.Text = recipe.PcbBlocksX.ToString();
@@ -195,6 +203,13 @@ namespace SBC_2D.Views
 
         private void CheckBoxRotate_CheckedChanged(object sender, EventArgs e)
             => RotateChanged?.Invoke(this, checkBoxRotate.Checked);
+
+        private void ButtonOpenZeroingForm_Click(object sender, EventArgs e)
+        {
+            FormZeroing formZeroing = new FormZeroing();
+            formZeroing.Show();
+            ThicknessZeroingViewOpend?.Invoke(this, formZeroing);
+        }
 
         private void ApplyTheme()
         {

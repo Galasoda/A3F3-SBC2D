@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SBC_2D.Shared;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -6,53 +7,42 @@ namespace SBC_2D.Infrastructures.Recipe
 {
     public class Recipe
     {
-        [Column("NAME")]
         public string Name { get; set; } = string.Empty;
-
-        [Column("CREATED_AT")]
+        [CompareIgnore]
         public DateTime CreatedAt { get; set; }
-
-        [Column("UPDATED_AT")]
+        [CompareIgnore]
         public DateTime UpdatedAt { get; set; }
-
-        [Column("IS_BYPASS_MAP_MODE")]
         public bool IsMapModeBypass { get; set; }
-
-        [Column("IS_BYPASS_UPPER_BR")]
         public bool IsUpperBrBypass { get; set; }
-
-        [Column("IS_BYPASS_LOWER_BR")]
         public bool IsLowerBrBypass { get; set; }
-
-        [Column("IS_BYPASS_LDS")]
         public bool IsLdsBypass { get; set; }
-
-        [Column("IS_PCB_ROTATE")]
         public bool IsPcbRotate { get; set; }
-
-        [Column("THICKNESS_ZERO_BIAS")]
         public int ThicknessZeroBias { get; set; }
-
-        [Column("THICKNESS")]
         public int Thickness { get; set; }
-
-        [Column("THICKNESS_POS_TOLERANCE")]
         public int ThicknessPosTolerance { get; set; }
-
-        [Column("PCB_COUNT")]
         public int PcbCount { get; set; }
-
-        [Column("PCB_CELLS_X")]
         public int PcbBlockX { get; set; }
-
-        [Column("PCB_CELLS_Y")]
         public int PcbBlockY { get; set; }
-
-        [Column("PCB_BLOCKS_X")]
         public int PcbBlocksX { get; set; }
-
-        [Column("PCB_BLOCKS_Y")]
         public int PcbBlocksY { get; set; }
 
+        public override bool Equals(object obj)
+        {
+            return obj is Recipe recipe &&
+                   Name == recipe.Name &&
+                   IsMapModeBypass == recipe.IsMapModeBypass &&
+                   IsUpperBrBypass == recipe.IsUpperBrBypass &&
+                   IsLowerBrBypass == recipe.IsLowerBrBypass &&
+                   IsLdsBypass == recipe.IsLdsBypass &&
+                   IsPcbRotate == recipe.IsPcbRotate &&
+                   ThicknessZeroBias == recipe.ThicknessZeroBias &&
+                   Thickness == recipe.Thickness &&
+                   ThicknessPosTolerance == recipe.ThicknessPosTolerance &&
+                   PcbCount == recipe.PcbCount &&
+                   PcbBlockX == recipe.PcbBlockX &&
+                   PcbBlockY == recipe.PcbBlockY &&
+                   PcbBlocksX == recipe.PcbBlocksX &&
+                   PcbBlocksY == recipe.PcbBlocksY;
+        }
     }
 }
