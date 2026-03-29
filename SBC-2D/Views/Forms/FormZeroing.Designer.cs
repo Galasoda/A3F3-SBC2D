@@ -264,7 +264,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(575, 323);
+            this.ClientSize = new System.Drawing.Size(575, 193);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Name = "FormZeroing";
             this.Text = "歸零設定";

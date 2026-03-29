@@ -53,7 +53,6 @@
             this.buttonStopAlarm = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.panelBottombar.SuspendLayout();
-            this.panelPage.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
@@ -63,6 +62,7 @@
             // 
             // panelBottombar
             // 
+            this.panelBottombar.Controls.Add(this.button1);
             this.panelBottombar.Controls.Add(this.buttonForm4);
             this.panelBottombar.Controls.Add(this.buttonForm1);
             this.panelBottombar.Controls.Add(this.buttonForm3);
@@ -78,7 +78,7 @@
             this.buttonForm4.Cursor = System.Windows.Forms.Cursors.Hand;
             this.buttonForm4.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
             this.buttonForm4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonForm4.Location = new System.Drawing.Point(344, 3);
+            this.buttonForm4.Location = new System.Drawing.Point(344, 4);
             this.buttonForm4.Name = "buttonForm4";
             this.buttonForm4.Size = new System.Drawing.Size(107, 53);
             this.buttonForm4.TabIndex = 3;
@@ -127,11 +127,10 @@
             // 
             // panelPage
             // 
-            this.panelPage.Controls.Add(this.button1);
             this.panelPage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelPage.Location = new System.Drawing.Point(0, 80);
+            this.panelPage.Location = new System.Drawing.Point(0, 70);
             this.panelPage.Name = "panelPage";
-            this.panelPage.Size = new System.Drawing.Size(1034, 551);
+            this.panelPage.Size = new System.Drawing.Size(1034, 561);
             this.panelPage.TabIndex = 26;
             // 
             // buttonSwitchLanguage
@@ -144,7 +143,7 @@
             this.buttonSwitchLanguage.Location = new System.Drawing.Point(654, 5);
             this.buttonSwitchLanguage.Margin = new System.Windows.Forms.Padding(4);
             this.buttonSwitchLanguage.Name = "buttonSwitchLanguage";
-            this.buttonSwitchLanguage.Size = new System.Drawing.Size(109, 70);
+            this.buttonSwitchLanguage.Size = new System.Drawing.Size(109, 57);
             this.buttonSwitchLanguage.TabIndex = 8;
             this.buttonSwitchLanguage.Text = "English";
             this.buttonSwitchLanguage.UseVisualStyleBackColor = false;
@@ -160,7 +159,7 @@
             this.flowLayoutPanel3.Location = new System.Drawing.Point(295, 5);
             this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(130, 70);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(130, 57);
             this.flowLayoutPanel3.TabIndex = 20;
             // 
             // label333
@@ -203,7 +202,7 @@
             this.flowLayoutPanel2.Location = new System.Drawing.Point(128, 5);
             this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(161, 70);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(161, 57);
             this.flowLayoutPanel2.TabIndex = 19;
             // 
             // label222
@@ -245,7 +244,7 @@
             this.buttonRestoreIdle.Location = new System.Drawing.Point(908, 5);
             this.buttonRestoreIdle.Margin = new System.Windows.Forms.Padding(4);
             this.buttonRestoreIdle.Name = "buttonRestoreIdle";
-            this.buttonRestoreIdle.Size = new System.Drawing.Size(121, 70);
+            this.buttonRestoreIdle.Size = new System.Drawing.Size(121, 57);
             this.buttonRestoreIdle.TabIndex = 17;
             this.buttonRestoreIdle.Text = "解除錯誤";
             this.buttonRestoreIdle.UseVisualStyleBackColor = false;
@@ -261,7 +260,7 @@
             this.flowLayoutPanel1.Location = new System.Drawing.Point(4, 5);
             this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(118, 70);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(118, 57);
             this.flowLayoutPanel1.TabIndex = 20;
             // 
             // label111
@@ -304,7 +303,7 @@
             this.flowLayoutPanel4.Location = new System.Drawing.Point(433, 5);
             this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(4);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(130, 70);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(130, 57);
             this.flowLayoutPanel4.TabIndex = 21;
             // 
             // label444
@@ -348,7 +347,7 @@
             this.panelTopbar.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTopbar.Location = new System.Drawing.Point(0, 0);
             this.panelTopbar.Name = "panelTopbar";
-            this.panelTopbar.Size = new System.Drawing.Size(1034, 80);
+            this.panelTopbar.Size = new System.Drawing.Size(1034, 70);
             this.panelTopbar.TabIndex = 25;
             // 
             // buttonStopAlarm
@@ -361,20 +360,19 @@
             this.buttonStopAlarm.Location = new System.Drawing.Point(781, 5);
             this.buttonStopAlarm.Margin = new System.Windows.Forms.Padding(4);
             this.buttonStopAlarm.Name = "buttonStopAlarm";
-            this.buttonStopAlarm.Size = new System.Drawing.Size(109, 70);
+            this.buttonStopAlarm.Size = new System.Drawing.Size(109, 57);
             this.buttonStopAlarm.TabIndex = 22;
             this.buttonStopAlarm.Text = "停止警報";
             this.buttonStopAlarm.UseVisualStyleBackColor = false;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(295, 187);
+            this.button1.Location = new System.Drawing.Point(578, 19);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 27;
+            this.button1.TabIndex = 4;
             this.button1.Text = "button1";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // FormMain
             // 
@@ -389,7 +387,6 @@
             this.Text = "FormMain";
             this.Load += new System.EventHandler(this.FormMain_Load);
             this.panelBottombar.ResumeLayout(false);
-            this.panelPage.ResumeLayout(false);
             this.flowLayoutPanel3.ResumeLayout(false);
             this.flowLayoutPanel3.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);

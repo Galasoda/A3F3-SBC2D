@@ -13,16 +13,20 @@ namespace SBC_2D.Views
 {
     public partial class FormMain : Form, IFormMainView
     {
+        private Form1 _form1;
         private Form2 _form2;
         private Form3 _form3;
+        private Form4 _form4;
         public event EventHandler Loaded;
 
-        public FormMain(Form2 form2, Form3 form3)
+        public FormMain(Form1 form1, Form2 form2, Form3 form3, Form4 form4)
         {
             InitializeComponent();
             ApplyTheme();
+            _form1 = form1;
             _form2 = form2;
             _form3 = form3;
+            _form4 = form4;
         }
 
         private void ApplyTheme()
@@ -41,18 +45,19 @@ namespace SBC_2D.Views
             Button button = sender as Button;
             switch (button)
             {
-                //case var r when r == buttonForm1:
-                //    ShowPage(_form1);
-                //    break;
+                case var r when r == buttonForm1:
+                    ShowPage(_form1);
+                    break;
                 case var r when r == buttonForm2:
                     ShowPage(_form2);
                     break;
                 case var r when r == buttonForm3:
                     ShowPage(_form3);
                     break;
-                //case var r when r == buttonForm4:
-                //    ShowPage(_form4);
-                //    break;
+                case var r when r == buttonForm4:
+                    ShowPage(_form4);
+                    _form4.ShowLogedMessage("");
+                    break;
             }
         }
 
@@ -69,7 +74,7 @@ namespace SBC_2D.Views
             page.Focus();
         }
 
-        public void SetModelName(string modelName)
+        public void SetRecipeName(string modelName)
             => labelModelName.Text = modelName;
         public void SetVersion(string version)
             => labelVersion.Text = version;
@@ -77,58 +82,5 @@ namespace SBC_2D.Views
             => labelStatus.Text = status;
         public void SetUserRole(string role)
             => labelUserRole.Text = role;
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            var a = new FormZeroing();
-            a.Show();
-        }
     }
 }
-
-
-//private Form _form3;
-//public event EventHandler Loaded;
-//public event EventHandler<string> PageRequested;
-
-//public FormMain(Form3 f3)
-//{
-//    _form3 = f3;
-//}
-
-//private void FormMain_Load(object sender, EventArgs e)
-//    => Loaded?.Invoke(this, EventArgs.Empty);
-
-//private void ButtonPage_Click(object sender, EventArgs e)
-//    => PageRequested?.Invoke(this, (sender as Button)?.Name ?? "");
-
-//public void NavigateTo(string pageName)
-//{
-//    // 切換頁面邏輯，例如顯示對應的 Panel 或 Form
-//    switch (pageName)
-//    {
-//        case PageNames.Form3: ShowPage(_form3); break;
-//    }
-//}
-
-//private void ShowPage(Form page)
-//{
-//    if (page == null)
-//        return;
-//    panelPage.Controls.Clear();
-//    page.TopLevel = false;
-//    page.FormBorderStyle = FormBorderStyle.None;
-//    page.Dock = DockStyle.Fill;
-//    panelPage.Controls.Add(page);
-//    page.Show();
-//    page.Focus();
-//}
-
-//public void SetModelName(string modelName)
-//    => labelModelName.Text = modelName;
-//public void SetVersion(string version)
-//    => labelVersion.Text = version;
-//public void SetMachineStatus(string status)
-//    => labelStatus.Text = status;
-//public void SetUserRole(string role)
-//    => labelUserRole.Text = role;

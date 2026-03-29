@@ -16,7 +16,6 @@ namespace SBC_2D.Infrastructures.Recipe
             Map(p => p.ThicknessZeroBias).ToColumn("THICKNESS_ZERO_BIAS");
             Map(p => p.Thickness).ToColumn("THICKNESS");
             Map(p => p.ThicknessPosTolerance).ToColumn("THICKNESS_POS_TOLERANCE");
-            Map(p => p.PcbCount).ToColumn("PCB_COUNT");
             Map(p => p.PcbBlockX).ToColumn("PCB_CELLS_X");
             Map(p => p.PcbBlockY).ToColumn("PCB_CELLS_Y");
             Map(p => p.PcbBlocksX).ToColumn("PCB_BLOCKS_X");

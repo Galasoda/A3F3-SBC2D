@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace SBC_2D.Shared
 {
@@ -63,7 +64,6 @@ namespace SBC_2D.Shared
                 ThicknessZeroBias = recipe.ThicknessZeroBias,
                 Thickness = recipe.Thickness,
                 ThicknessPosTolerance = recipe.ThicknessPosTolerance,
-                PcbCount = recipe.PcbCount,
                 IsPcbRotate = recipe.IsPcbRotate,
                 PcbBlockX = recipe.PcbBlockX,
                 PcbBlockY = recipe.PcbBlockY,

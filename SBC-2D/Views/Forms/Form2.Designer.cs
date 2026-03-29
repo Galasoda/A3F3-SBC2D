@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SBC_2D.Shared;
+using System;
 
 namespace SBC_2D.Views
 {
@@ -70,9 +71,6 @@ namespace SBC_2D.Views
             this.label5 = new System.Windows.Forms.Label();
             this.textBoxSubstrateBlockX = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.panelPcbCount = new System.Windows.Forms.Panel();
-            this.radioButtonSinglePcb = new System.Windows.Forms.RadioButton();
-            this.radioButtonDualPcb = new System.Windows.Forms.RadioButton();
             this.checkBoxRotate = new System.Windows.Forms.CheckBox();
             this.label4 = new System.Windows.Forms.Label();
             this.textBoxSubstrateBlockNumY = new System.Windows.Forms.TextBox();
@@ -91,7 +89,6 @@ namespace SBC_2D.Views
             this.flowLayoutPanelConfirmCancel.SuspendLayout();
             this.groupBoxRecipeManager.SuspendLayout();
             this.panelSelectRecipe.SuspendLayout();
-            this.panelPcbCount.SuspendLayout();
             this.groupBoxSubstrateSetting.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -357,6 +354,7 @@ namespace SBC_2D.Views
             this.textBoxThicknessTolrence.TabIndex = 11019;
             this.textBoxThicknessTolrence.WordWrap = false;
             this.textBoxThicknessTolrence.TextChanged += new System.EventHandler(this.TextBoxThicknessTolrence_TextChanged);
+            this.textBoxThicknessTolrence.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPressNumber);
             // 
             // label7
             // 
@@ -557,12 +555,13 @@ namespace SBC_2D.Views
             // textBoxSubstrateBlockY
             // 
             this.textBoxSubstrateBlockY.Font = new System.Drawing.Font("新細明體", 10.2F);
-            this.textBoxSubstrateBlockY.Location = new System.Drawing.Point(37, 66);
+            this.textBoxSubstrateBlockY.Location = new System.Drawing.Point(249, 69);
             this.textBoxSubstrateBlockY.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBoxSubstrateBlockY.Name = "textBoxSubstrateBlockY";
             this.textBoxSubstrateBlockY.Size = new System.Drawing.Size(83, 24);
             this.textBoxSubstrateBlockY.TabIndex = 11008;
             this.textBoxSubstrateBlockY.TextChanged += new System.EventHandler(this.TextBoxSubstrateBlockY_TextChanged);
+            this.textBoxSubstrateBlockY.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPressNumber);
             // 
             // label5
             // 
@@ -571,7 +570,7 @@ namespace SBC_2D.Views
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("微軟正黑體", 10.2F);
             this.label5.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label5.Location = new System.Drawing.Point(12, 69);
+            this.label5.Location = new System.Drawing.Point(226, 73);
             this.label5.Margin = new System.Windows.Forms.Padding(4);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(16, 18);
@@ -582,12 +581,13 @@ namespace SBC_2D.Views
             // textBoxSubstrateBlockX
             // 
             this.textBoxSubstrateBlockX.Font = new System.Drawing.Font("新細明體", 10.2F);
-            this.textBoxSubstrateBlockX.Location = new System.Drawing.Point(37, 36);
+            this.textBoxSubstrateBlockX.Location = new System.Drawing.Point(79, 69);
             this.textBoxSubstrateBlockX.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBoxSubstrateBlockX.Name = "textBoxSubstrateBlockX";
             this.textBoxSubstrateBlockX.Size = new System.Drawing.Size(83, 24);
             this.textBoxSubstrateBlockX.TabIndex = 11007;
             this.textBoxSubstrateBlockX.TextChanged += new System.EventHandler(this.TextBoxSubstrateBlockX_TextChanged);
+            this.textBoxSubstrateBlockX.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPressNumber);
             // 
             // label2
             // 
@@ -596,7 +596,7 @@ namespace SBC_2D.Views
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("微軟正黑體", 10.2F);
             this.label2.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label2.Location = new System.Drawing.Point(12, 39);
+            this.label2.Location = new System.Drawing.Point(55, 73);
             this.label2.Margin = new System.Windows.Forms.Padding(4);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(17, 18);
@@ -604,49 +604,11 @@ namespace SBC_2D.Views
             this.label2.Text = "X";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // panelPcbCount
-            // 
-            this.panelPcbCount.Controls.Add(this.radioButtonSinglePcb);
-            this.panelPcbCount.Controls.Add(this.radioButtonDualPcb);
-            this.panelPcbCount.Location = new System.Drawing.Point(294, 25);
-            this.panelPcbCount.Name = "panelPcbCount";
-            this.panelPcbCount.Size = new System.Drawing.Size(78, 72);
-            this.panelPcbCount.TabIndex = 11036;
-            // 
-            // radioButtonSinglePcb
-            // 
-            this.radioButtonSinglePcb.AutoSize = true;
-            this.radioButtonSinglePcb.Checked = true;
-            this.radioButtonSinglePcb.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.radioButtonSinglePcb.Location = new System.Drawing.Point(3, 15);
-            this.radioButtonSinglePcb.Name = "radioButtonSinglePcb";
-            this.radioButtonSinglePcb.Size = new System.Drawing.Size(65, 21);
-            this.radioButtonSinglePcb.TabIndex = 10994;
-            this.radioButtonSinglePcb.TabStop = true;
-            this.radioButtonSinglePcb.Tag = "1";
-            this.radioButtonSinglePcb.Text = "單載板";
-            this.radioButtonSinglePcb.UseVisualStyleBackColor = true;
-            this.radioButtonSinglePcb.CheckedChanged += new System.EventHandler(this.RadioButtonSinglePcb_CheckedChanged);
-            // 
-            // radioButtonDualPcb
-            // 
-            this.radioButtonDualPcb.AutoSize = true;
-            this.radioButtonDualPcb.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.radioButtonDualPcb.Location = new System.Drawing.Point(3, 45);
-            this.radioButtonDualPcb.Name = "radioButtonDualPcb";
-            this.radioButtonDualPcb.Size = new System.Drawing.Size(65, 21);
-            this.radioButtonDualPcb.TabIndex = 10995;
-            this.radioButtonDualPcb.TabStop = true;
-            this.radioButtonDualPcb.Tag = "2";
-            this.radioButtonDualPcb.Text = "雙載板";
-            this.radioButtonDualPcb.UseVisualStyleBackColor = true;
-            this.radioButtonDualPcb.CheckedChanged += new System.EventHandler(this.RadioButtonDualPcb_CheckedChanged);
-            // 
             // checkBoxRotate
             // 
             this.checkBoxRotate.AutoSize = true;
             this.checkBoxRotate.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.checkBoxRotate.Location = new System.Drawing.Point(395, 52);
+            this.checkBoxRotate.Location = new System.Drawing.Point(373, 51);
             this.checkBoxRotate.Name = "checkBoxRotate";
             this.checkBoxRotate.Size = new System.Drawing.Size(79, 21);
             this.checkBoxRotate.TabIndex = 11040;
@@ -661,7 +623,7 @@ namespace SBC_2D.Views
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("微軟正黑體", 10.2F);
             this.label4.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label4.Location = new System.Drawing.Point(129, 69);
+            this.label4.Location = new System.Drawing.Point(186, 33);
             this.label4.Margin = new System.Windows.Forms.Padding(4);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(56, 18);
@@ -672,12 +634,13 @@ namespace SBC_2D.Views
             // textBoxSubstrateBlockNumY
             // 
             this.textBoxSubstrateBlockNumY.Font = new System.Drawing.Font("新細明體", 10.2F);
-            this.textBoxSubstrateBlockNumY.Location = new System.Drawing.Point(194, 66);
+            this.textBoxSubstrateBlockNumY.Location = new System.Drawing.Point(249, 30);
             this.textBoxSubstrateBlockNumY.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBoxSubstrateBlockNumY.Name = "textBoxSubstrateBlockNumY";
             this.textBoxSubstrateBlockNumY.Size = new System.Drawing.Size(83, 24);
             this.textBoxSubstrateBlockNumY.TabIndex = 11043;
             this.textBoxSubstrateBlockNumY.TextChanged += new System.EventHandler(this.TextBoxSubstrateBlockNumY_TextChanged);
+            this.textBoxSubstrateBlockNumY.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPressNumber);
             // 
             // label3
             // 
@@ -686,7 +649,7 @@ namespace SBC_2D.Views
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("微軟正黑體", 10.2F);
             this.label3.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label3.Location = new System.Drawing.Point(128, 39);
+            this.label3.Location = new System.Drawing.Point(15, 33);
             this.label3.Margin = new System.Windows.Forms.Padding(4);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(57, 18);
@@ -697,12 +660,13 @@ namespace SBC_2D.Views
             // textBoxSubstrateBlockNumX
             // 
             this.textBoxSubstrateBlockNumX.Font = new System.Drawing.Font("新細明體", 10.2F);
-            this.textBoxSubstrateBlockNumX.Location = new System.Drawing.Point(193, 36);
+            this.textBoxSubstrateBlockNumX.Location = new System.Drawing.Point(79, 30);
             this.textBoxSubstrateBlockNumX.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBoxSubstrateBlockNumX.Name = "textBoxSubstrateBlockNumX";
             this.textBoxSubstrateBlockNumX.Size = new System.Drawing.Size(83, 24);
             this.textBoxSubstrateBlockNumX.TabIndex = 11041;
             this.textBoxSubstrateBlockNumX.TextChanged += new System.EventHandler(this.TextBoxSubstrateBlockNumX_TextChanged);
+            this.textBoxSubstrateBlockNumX.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPressNumber);
             // 
             // groupBoxSubstrateSetting
             // 
@@ -713,7 +677,6 @@ namespace SBC_2D.Views
             this.groupBoxSubstrateSetting.Controls.Add(this.textBoxSubstrateBlockY);
             this.groupBoxSubstrateSetting.Controls.Add(this.textBoxSubstrateBlockNumY);
             this.groupBoxSubstrateSetting.Controls.Add(this.label2);
-            this.groupBoxSubstrateSetting.Controls.Add(this.panelPcbCount);
             this.groupBoxSubstrateSetting.Controls.Add(this.label3);
             this.groupBoxSubstrateSetting.Controls.Add(this.textBoxSubstrateBlockNumX);
             this.groupBoxSubstrateSetting.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
@@ -741,7 +704,6 @@ namespace SBC_2D.Views
             this.Name = "Form2";
             this.ShowIcon = false;
             this.Text = "Form2";
-            this.Load += new System.EventHandler(this.Form2_Load);
             this.groupBoxBypassSetting.ResumeLayout(false);
             this.groupBoxBypassSetting.PerformLayout();
             this.groupBoxThicknessSetting.ResumeLayout(false);
@@ -764,8 +726,6 @@ namespace SBC_2D.Views
             this.groupBoxRecipeManager.PerformLayout();
             this.panelSelectRecipe.ResumeLayout(false);
             this.panelSelectRecipe.PerformLayout();
-            this.panelPcbCount.ResumeLayout(false);
-            this.panelPcbCount.PerformLayout();
             this.groupBoxSubstrateSetting.ResumeLayout(false);
             this.groupBoxSubstrateSetting.PerformLayout();
             this.ResumeLayout(false);
@@ -799,9 +759,6 @@ namespace SBC_2D.Views
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBoxSubstrateBlockX;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Panel panelPcbCount;
-        private System.Windows.Forms.RadioButton radioButtonSinglePcb;
-        private System.Windows.Forms.RadioButton radioButtonDualPcb;
         private System.Windows.Forms.CheckBox checkBoxRotate;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBoxSubstrateBlockNumY;

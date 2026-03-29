@@ -3,13 +3,13 @@ using SBC_2D.Shared;
 using SBC_2D.Views.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using static SBC_2D.Shared.Enums;
 
 namespace SBC_2D.Views
 {
     public interface IRecipeView
     {
-        event EventHandler Initialized;
         event EventHandler<RecipeManageViewMode> ActionRequested;
         event EventHandler<string> ModelNameSelectChanged;
         event EventHandler<string> ActionConfirmed;
@@ -25,7 +25,6 @@ namespace SBC_2D.Views
         event EventHandler<string> BlockYChanged;
         event EventHandler<string> BlockNumXChanged;
         event EventHandler<string> BlockNumYChanged;
-        event EventHandler<int> PcbCountChanged;
         event EventHandler<bool> RotateChanged;
         event EventHandler<IZeroingView> ThicknessZeroingViewOpend;
 

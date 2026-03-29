@@ -35,7 +35,6 @@ namespace SBC_2D.Presenters
         // Events
         public event Action<Recipe> RecipeChanged;
         public event Action<List<string>> Initialized;
-        public event Action<bool> OnValueChanged;
 
         public RecipePresenter(RecipeService recipeService, IniService iniService, IRecipeView recipeView)
         {
@@ -50,7 +49,6 @@ namespace SBC_2D.Presenters
 
         public void Initialize()
         {
-            _recipeView.Initialized += RecipeView_Initialized; ;
             _recipeView.ToggleEditModeRequested += RecipeView_ToggleEditMode;
             _recipeView.ActionRequested += RecipeView_ActionRequested;
             _recipeView.ActionConfirmed += RecipeView_ActionConfirmed;
@@ -66,7 +64,6 @@ namespace SBC_2D.Presenters
             _recipeView.BlockYChanged += RecipeView_BlockYChanged;
             _recipeView.BlockNumXChanged += RecipeView_BlockNumXChanged;
             _recipeView.BlockNumYChanged += RecipeView_BlockNumYChanged;
-            _recipeView.PcbCountChanged += RecipeView_PcbCountChanged;
             _recipeView.RotateChanged += RecipeView_RotateChanged;
             _recipeView.ThicknessZeroingViewOpend += RecipeView_ThicknessZeroingViewOpened;
 
@@ -74,11 +71,6 @@ namespace SBC_2D.Presenters
             _recipeView.SetEditMode(_isOnEdit);
             _recipeManageViewMode = RecipeManageViewMode.Nothing;
             _recipeView.SetViewMode(_recipeManageViewMode);
-        }
-
-        private void RecipeView_Initialized(object sender, EventArgs e)
-        {
-            _isOnEdit = false;
             List<string> names = _recipeService.GetAllNames();
             string name = _iniService.GetCurrentRecipeName() ?? string.Empty;
             Recipe recipe = _recipeService.Get(name) ?? new Recipe();
@@ -136,6 +128,8 @@ namespace SBC_2D.Presenters
         private void RecipeView_BlockXChanged(object sender, string e)
         {
             Edit(nameof(Recipe.PcbBlockX), e);
+            //之後再補要檢查是否為空或0，至少要>=1
+            //而且ui要好操作
         }
 
         private void RecipeView_BlockYChanged(object sender, string e)
@@ -151,11 +145,6 @@ namespace SBC_2D.Presenters
         private void RecipeView_BlockNumYChanged(object sender, string e)
         {
             Edit(nameof(Recipe.PcbBlocksY), e);
-        }
-
-        private void RecipeView_PcbCountChanged(object sender, int e)
-        {
-            Edit(nameof(Recipe.PcbCount), e);
         }
 
         private void RecipeView_RotateChanged(object sender, bool e)

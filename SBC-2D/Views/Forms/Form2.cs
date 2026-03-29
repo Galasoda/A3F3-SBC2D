@@ -16,7 +16,6 @@ namespace SBC_2D.Views
 {
     public partial class Form2 : Form, IRecipeView
     {
-        public event EventHandler Initialized;
         public event EventHandler<RecipeManageViewMode> ActionRequested;
         public event EventHandler<string> ModelNameSelectChanged;
         public event EventHandler<string> ActionConfirmed;
@@ -32,7 +31,6 @@ namespace SBC_2D.Views
         public event EventHandler<string> BlockYChanged;
         public event EventHandler<string> BlockNumXChanged;
         public event EventHandler<string> BlockNumYChanged;
-        public event EventHandler<int> PcbCountChanged;
         public event EventHandler<bool> RotateChanged;
         public event EventHandler<IZeroingView> ThicknessZeroingViewOpend;
 
@@ -41,9 +39,6 @@ namespace SBC_2D.Views
             InitializeComponent();
             ApplyTheme();
         }
-
-        private void Form2_Load(object sender, EventArgs e)
-            => Initialized?.Invoke(this, EventArgs.Empty);
 
         // Recipe Manage Control
         private void ComboBoxRecipes_SelectedIndexChanged(object sender, EventArgs e)
@@ -153,8 +148,6 @@ namespace SBC_2D.Views
             textBoxSubstrateBlockY.Text = recipe.PcbBlockY.ToString();
             textBoxSubstrateBlockNumX.Text = recipe.PcbBlocksX.ToString();
             textBoxSubstrateBlockNumY.Text = recipe.PcbBlocksY.ToString();
-            radioButtonSinglePcb.Checked = recipe.PcbCount == 1;
-            radioButtonDualPcb.Checked = recipe.PcbCount == 2;
             checkBoxRotate.Checked = recipe.IsPcbRotate;
             comboBoxRecipes.SelectedItem = recipe.Name;
         }
@@ -189,18 +182,6 @@ namespace SBC_2D.Views
         private void TextBoxSubstrateBlockNumY_TextChanged(object sender, EventArgs e)
             => BlockNumYChanged?.Invoke(this, textBoxSubstrateBlockNumY.Text);
 
-        private void RadioButtonSinglePcb_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButtonSinglePcb.Checked)
-                PcbCountChanged?.Invoke(this, 1);
-        }
-
-        private void RadioButtonDualPcb_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButtonDualPcb.Checked)
-                PcbCountChanged?.Invoke(this, 2);
-        }
-
         private void CheckBoxRotate_CheckedChanged(object sender, EventArgs e)
             => RotateChanged?.Invoke(this, checkBoxRotate.Checked);
 
@@ -209,6 +190,17 @@ namespace SBC_2D.Views
             FormZeroing formZeroing = new FormZeroing();
             ThicknessZeroingViewOpend?.Invoke(this, formZeroing);
             formZeroing.ShowDialog();
+        }
+
+        private void TextBox_KeyPressNumber(object sender, KeyPressEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar))
+            {
+                e.Handled = true;
+                return;
+            }
         }
 
         private void ApplyTheme()

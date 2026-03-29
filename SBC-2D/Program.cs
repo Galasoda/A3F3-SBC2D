@@ -3,6 +3,7 @@ using SBC_2D.Domain.Servicies;
 using SBC_2D.Infrastructures.Device;
 using SBC_2D.Infrastructures.Ini;
 using SBC_2D.Infrastructures.Recipe;
+using SBC_2D.Infrastructures.User;
 using SBC_2D.Presenters;
 using SBC_2D.Servicies;
 using SBC_2D.Views;
@@ -30,10 +31,16 @@ namespace SBC_2D
             FluentMapper.Initialize(config =>
             {
                 config.AddMap(new RecipeMap());
+                config.AddMap(new UserMap());
             });
             IniStore iniStore = new IniStore();
             IniService iniService = new IniService(iniStore);
             iniStore.Setup = iniService.GetSetup();
+
+            //Dao應該配合工廠方法，切換不同資料庫連線
+            //Dao生命週期不應該留這麼久
+            UserDao userDao = new UserDao(iniStore.Setup.PathConfig.SqLiteFile);
+            UserService userService = new UserService(userDao);
 
             RecipeDao recipeDao = new RecipeDao(iniStore.Setup.PathConfig.SqLiteFile);
             RecipeService recipeService = new RecipeService(iniService, recipeDao);
@@ -49,12 +56,15 @@ namespace SBC_2D
             devicesStore.IoDeviceContext.AddRange(iodcs);
             //deviceManager.Initialize(devicesStore, iniStore.Setup.DeviceConfig);
 
+            Form1 form1 = new Form1();
             Form2 form2 = new Form2();
             Form3 form3 = new Form3();
-            FormMain formMain = new FormMain(form2 , form3);
+            Form4 form4 = new Form4();
+            FormMain formMain = new FormMain(form1, form2 , form3, form4);
+            UserPresenter userPresenter = new UserPresenter(form4, userService);
             RecipePresenter recipePresenter = new RecipePresenter(recipeService, iniService, form2);
             DevicePresenter devicePresenter = new DevicePresenter(form3, deviceService, iniService);
-            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter);
+            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter, userPresenter);
             formMainPresenter.Initialize();
             Application.Run(formMain);
         }

@@ -49,7 +49,7 @@
             this.tabPageDis.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageDis.Name = "tabPageDis";
             this.tabPageDis.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageDis.Size = new System.Drawing.Size(784, 481);
+            this.tabPageDis.Size = new System.Drawing.Size(1026, 790);
             this.tabPageDis.TabIndex = 0;
             this.tabPageDis.Text = "輸入";
             this.tabPageDis.UseVisualStyleBackColor = true;
@@ -61,7 +61,7 @@
             this.flowLayoutPanelDis.Location = new System.Drawing.Point(2, 2);
             this.flowLayoutPanelDis.Name = "flowLayoutPanelDis";
             this.flowLayoutPanelDis.Padding = new System.Windows.Forms.Padding(4);
-            this.flowLayoutPanelDis.Size = new System.Drawing.Size(780, 477);
+            this.flowLayoutPanelDis.Size = new System.Drawing.Size(1022, 786);
             this.flowLayoutPanelDis.TabIndex = 64;
             // 
             // tabPageSetting
@@ -71,7 +71,7 @@
             this.tabPageSetting.Margin = new System.Windows.Forms.Padding(2);
             this.tabPageSetting.Name = "tabPageSetting";
             this.tabPageSetting.Padding = new System.Windows.Forms.Padding(2);
-            this.tabPageSetting.Size = new System.Drawing.Size(784, 481);
+            this.tabPageSetting.Size = new System.Drawing.Size(1026, 790);
             this.tabPageSetting.TabIndex = 1;
             this.tabPageSetting.Text = "設定";
             this.tabPageSetting.UseVisualStyleBackColor = true;
@@ -95,7 +95,7 @@
             this.tabControl1.Margin = new System.Windows.Forms.Padding(2);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(792, 507);
+            this.tabControl1.Size = new System.Drawing.Size(1034, 816);
             this.tabControl1.TabIndex = 63;
             // 
             // tabPageDos
@@ -103,7 +103,7 @@
             this.tabPageDos.Controls.Add(this.flowLayoutPanelDos);
             this.tabPageDos.Location = new System.Drawing.Point(4, 22);
             this.tabPageDos.Name = "tabPageDos";
-            this.tabPageDos.Size = new System.Drawing.Size(784, 481);
+            this.tabPageDos.Size = new System.Drawing.Size(1026, 790);
             this.tabPageDos.TabIndex = 2;
             this.tabPageDos.Text = "輸出";
             this.tabPageDos.UseVisualStyleBackColor = true;
@@ -115,7 +115,7 @@
             this.flowLayoutPanelDos.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanelDos.Name = "flowLayoutPanelDos";
             this.flowLayoutPanelDos.Padding = new System.Windows.Forms.Padding(4);
-            this.flowLayoutPanelDos.Size = new System.Drawing.Size(784, 481);
+            this.flowLayoutPanelDos.Size = new System.Drawing.Size(1026, 790);
             this.flowLayoutPanelDos.TabIndex = 65;
             // 
             // tabPageTest
@@ -123,7 +123,7 @@
             this.tabPageTest.Location = new System.Drawing.Point(4, 22);
             this.tabPageTest.Name = "tabPageTest";
             this.tabPageTest.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageTest.Size = new System.Drawing.Size(784, 481);
+            this.tabPageTest.Size = new System.Drawing.Size(1026, 790);
             this.tabPageTest.TabIndex = 3;
             this.tabPageTest.Text = "測試";
             this.tabPageTest.UseVisualStyleBackColor = true;
@@ -132,7 +132,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(792, 507);
+            this.ClientSize = new System.Drawing.Size(1034, 816);
             this.ControlBox = false;
             this.Controls.Add(this.tabControl1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
