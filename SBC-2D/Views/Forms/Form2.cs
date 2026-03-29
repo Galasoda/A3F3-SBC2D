@@ -207,8 +207,8 @@ namespace SBC_2D.Views
         private void ButtonOpenZeroingForm_Click(object sender, EventArgs e)
         {
             FormZeroing formZeroing = new FormZeroing();
-            formZeroing.Show();
             ThicknessZeroingViewOpend?.Invoke(this, formZeroing);
+            formZeroing.ShowDialog();
         }
 
         private void ApplyTheme()

@@ -78,5 +78,8 @@ namespace SBC_2D.Views.Forms
 
         private void FormZeroing_FormClosed(object sender, FormClosedEventArgs e)
             => ViewClosed?.Invoke(this, e);
+
+        public void CloseView()
+            => Close();
     }
 }

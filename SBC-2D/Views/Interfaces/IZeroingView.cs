@@ -12,5 +12,6 @@ namespace SBC_2D.Views.Interfaces
         event EventHandler ZeroingRequested;
         event EventHandler ViewClosed; 
         void SetThicknessZeroBias(string bias);
+        void CloseView();
     }
 }

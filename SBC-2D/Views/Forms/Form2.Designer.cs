@@ -79,7 +79,6 @@ namespace SBC_2D.Views
             this.label3 = new System.Windows.Forms.Label();
             this.textBoxSubstrateBlockNumX = new System.Windows.Forms.TextBox();
             this.groupBoxSubstrateSetting = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.groupBoxBypassSetting.SuspendLayout();
             this.groupBoxThicknessSetting.SuspendLayout();
             this.panel4.SuspendLayout();
@@ -727,20 +726,6 @@ namespace SBC_2D.Views
             this.groupBoxSubstrateSetting.TabStop = false;
             this.groupBoxSubstrateSetting.Text = "基板設定";
             // 
-            // label1
-            // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.Font = new System.Drawing.Font("微軟正黑體", 10.2F);
-            this.label1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.label1.Location = new System.Drawing.Point(483, 296);
-            this.label1.Margin = new System.Windows.Forms.Padding(4);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(371, 75);
-            this.label1.TabIndex = 11046;
-            this.label1.Text = "功能待增加: \r\n- 自製UI詢問，避免MSGBOX卡UI\r\n- 記得將模組名存入INI\r\n\r\n";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -748,7 +733,6 @@ namespace SBC_2D.Views
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(1034, 816);
             this.ControlBox = false;
-            this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBoxSubstrateSetting);
             this.Controls.Add(this.groupBoxRecipeManager);
             this.Controls.Add(this.groupBoxThicknessSetting);
@@ -837,7 +821,6 @@ namespace SBC_2D.Views
         private System.Windows.Forms.Panel panelSelectRecipe;
         private System.Windows.Forms.Label labelRecipeName;
         private System.Windows.Forms.Button buttonGetPcbThickness;
-        private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button buttonSwitchEditOrView;
     }
 }

@@ -78,17 +78,13 @@ namespace SBC_2D.Presenters
 
         private void RecipeView_Initialized(object sender, EventArgs e)
         {
+            _isOnEdit = false;
             List<string> names = _recipeService.GetAllNames();
             string name = _iniService.GetCurrentRecipeName() ?? string.Empty;
             Recipe recipe = _recipeService.Get(name) ?? new Recipe();
             _allRecipeNames = names;
             _recipeView.ShowRecipeNames(names);
             Load(name);
-            //_currentRecipe = recipe.DeepClone();
-            //_editedRecipe = recipe.DeepClone();
-            //_recipeView.ShowRecipe(recipe);
-            //_recipeView.ShowHintForSave(false);
-            //RecipeChanged?.Invoke(recipe);
         }
 
         private void RecipeView_LdsBypassChanged(object sender, bool e)
@@ -180,8 +176,7 @@ namespace SBC_2D.Presenters
 
             _recipeManageViewMode = action;
             _recipeView.SetViewMode(action);
-            if (action == RecipeManageViewMode.Delete ||
-                action == RecipeManageViewMode.Open)
+            if (action == RecipeManageViewMode.Delete || action == RecipeManageViewMode.Open)
                 _recipeView.SetEditMode(false);
         }
 
@@ -234,6 +229,7 @@ namespace SBC_2D.Presenters
             _isOnEdit = !_isOnEdit;
             _recipeView.SetEditMode(_isOnEdit);
         }
+
         private void RecipeView_ModelNameSelectChanged(object sender, string e)
             => _selectedName = e;
 
@@ -308,8 +304,9 @@ namespace SBC_2D.Presenters
             _editedRecipe = recipe.DeepClone();
             _recipeView.ShowRecipe(recipe);
             _recipeView.ShowHintForSave(false);
+            _isOnEdit = false;
+            _recipeView.SetEditMode(false);
             _iniService.SaveCurrentRecipeName(_currentRecipe.Name);
-            //_selectedName = _currentRecipe.Name;
             RecipeChanged?.Invoke(recipe);
         }
 
@@ -339,6 +336,7 @@ namespace SBC_2D.Presenters
             if (_zeroingView == null) return;
             _zeroingView.ThicknessZeroBiasChanged -= ZeroingView_ThicknessZeroBiasChanged;
             _zeroingView.ViewClosed -= ZeroingView_OnZeroingViewClosed;
+            _zeroingView.CloseView();
             _zeroingView = null;
         }
     }
