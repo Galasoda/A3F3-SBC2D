@@ -14,22 +14,20 @@ namespace SBC_2D.Presenters
     public class DevicePresenter
     {
         private readonly IForm3View _form3View;
-        private readonly DeviceService _deviceService;
-        private readonly IniService _iniService;
+        private readonly DeviceManager _deviceManager;
         private readonly List<DeviceConnectionPresenter> _deviceConnectionPresenters;
         private readonly List<IoDeviceContext> _ioDeviceContexts;
         private Dictionary<int, IIoView> _diViewMap;
         private Dictionary<int, IIoView> _doViewMap;
 
-        public DevicePresenter(IForm3View form3View, DeviceService deviceService, IniService iniService)
+        public DevicePresenter(IForm3View form3View, DeviceManager deviceManager)
         {
             _form3View = form3View;
-            _deviceService = deviceService;
+            _deviceManager = deviceManager;
             _deviceConnectionPresenters = new List<DeviceConnectionPresenter>();
             _ioDeviceContexts = new List<IoDeviceContext>();
             _diViewMap = new Dictionary<int, IIoView>();
             _doViewMap = new Dictionary<int, IIoView>();
-            _iniService = iniService;
         }
 
         //建議還是要分deviceConnectionlistview、iolistview
@@ -37,22 +35,25 @@ namespace SBC_2D.Presenters
         //再加個laserthicknessSensor mvp
         public void Initialize()
         {
-            foreach (IDevice device in _deviceService.GetDevices())
+            foreach (IDevice device in _deviceManager.Devices)
             {
                 string name = device.Name;
                 var view = _form3View.AddDeviceConnectionView();
-                var config = _iniService.GetSocketConfig(name);
+                var config = IniService.GetSocketConfig(name);
                 if (config.Value == null)
                     config = new KeyValuePair<string, SocketConfig>(name, new SocketConfig("", -1));
-                var presenter = new DeviceConnectionPresenter(view, _deviceService, config.Key, config.Value);
-                _deviceConnectionPresenters.Add(presenter);
-                presenter.Initialize();
+                if (device is IConnectableDevice connectableDevice)
+                {
+                    var presenter = new DeviceConnectionPresenter(view, connectableDevice, config.Value, _deviceManager);
+                    _deviceConnectionPresenters.Add(presenter);
+                    presenter.Initialize();
+                }
             }
             _form3View.ClearInputView();
             _diViewMap.Clear();
             _form3View.ClearOutputView();
             _doViewMap.Clear();
-            foreach (IoDeviceContext context in _deviceService.GetIoDeviceContexts())
+            foreach (IoDeviceContext context in _deviceManager.IoDeviceContexts)
             {
                 _ioDeviceContexts.Add(context);
                 for (int i = 0; i < context.Device.DiCount; i++)
@@ -79,11 +80,18 @@ namespace SBC_2D.Presenters
                 context.SystemDosUpdated -= Context_SystemDosUpdated;
                 context.SystemDosUpdated += Context_SystemDosUpdated;
             }
+            _ = _deviceManager.StartPollingAllDeviceConnection();
         }
 
-        private void View_OutputClicked(object sender, int e)
+        public async Task ConnectAllAsync()
         {
-            _deviceService.InverseDo(e);
+            foreach (var p in _deviceConnectionPresenters)
+                await p.TriggerConnectAsync();
+        }
+
+        private void View_OutputClicked(object sender, int index)
+        {
+            _deviceManager.InverseDo(index, out bool isOn);
         }
 
         //不宣告查表: 時間換空間
@@ -104,12 +112,6 @@ namespace SBC_2D.Presenters
                 if (_doViewMap.TryGetValue(dout.Key, out IIoView view))
                     view.SetStatus(dout.Value);
             }
-        }
-
-        public async Task ConnectAllAsync()
-        {
-            foreach (var p in _deviceConnectionPresenters)
-                await p.TriggerConnectAsync();
         }
     }
 }

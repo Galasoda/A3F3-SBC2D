@@ -208,6 +208,10 @@
     <Compile Include="Domain\Servicies\ErrorService.cs" />
     <Compile Include="Domain\Servicies\RecipeService.cs" />
     <Compile Include="Domain\Servicies\UserService.cs" />
+    <Compile Include="Events\IDeviceConnectionEvents.cs" />
+    <Compile Include="Events\IEventBus.cs" />
+    <Compile Include="Events\IIoEvents.cs" />
+    <Compile Include="Events\PresenterEventBus.cs" />
     <Compile Include="Infrastructures\Device\DeviceNames.cs" />
     <Compile Include="Infrastructures\Device\IBarcodeReaderDevice.cs" />
     <Compile Include="Infrastructures\Device\IConnectableDevice.cs" />
@@ -220,7 +224,6 @@
     <Compile Include="Infrastructures\Device\KeyenceBarcodeReader.cs" />
     <Compile Include="Infrastructures\Ini\IniStore.cs" />
     <Compile Include="Infrastructures\Device\IoDeviceContext.cs" />
-    <Compile Include="Domain\Servicies\DeviceService.cs" />
     <Compile Include="Infrastructures\Device\Adam6052.cs" />
     <Compile Include="Infrastructures\Device\DevicesStore.cs" />
     <Compile Include="Infrastructures\Device\IDevice.cs" />

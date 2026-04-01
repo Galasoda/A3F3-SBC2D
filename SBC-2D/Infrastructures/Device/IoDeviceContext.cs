@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SBC_2D.Events;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SBC_2D.Infrastructures.Device
 {
-    public class IoDeviceContext
+    public class IoDeviceContext : IIoEvents
     {
         public IIoDevice Device { get; }
         public int DiStart { get; }

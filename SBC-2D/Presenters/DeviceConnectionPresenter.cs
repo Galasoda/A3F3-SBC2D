@@ -16,17 +16,16 @@ namespace SBC_2D.Presenters
     public class DeviceConnectionPresenter
     {
         private readonly IDeviceConnectionView _view;
-        private readonly DeviceService _deviceService;
         private IConnectableDevice _device;
-        private string _name = string.Empty;
         private SocketConfig _socketConfig;
+        private DeviceManager _deviceManager;
 
-        public DeviceConnectionPresenter(IDeviceConnectionView view, DeviceService deviceService, string name, SocketConfig config)
+        public DeviceConnectionPresenter(IDeviceConnectionView view, IConnectableDevice device, SocketConfig config, DeviceManager deviceManager)
         {
             _view = view;
-            _deviceService = deviceService;
-            _name = name;
+            _device = device;
             _socketConfig = config;
+            _deviceManager = deviceManager;
         }
 
         public void Initialize()
@@ -34,10 +33,9 @@ namespace SBC_2D.Presenters
             _view.IpChanged += View_IpChanged;
             _view.PortChanged += View_PortChanged;
             _view.RequestConnection += View_RquestedConnection;
-            _view.SetName(_name);
+            _view.SetName(_device.Name ?? "");
             _view.SetIp(_socketConfig.Address);
             _view.SetPort(_socketConfig.Port > -1 ? _socketConfig.Port.ToString() : "");
-            _device = _deviceService.GetConnectableDevice(_name);
             if (_device != null)
                 _device.ConnectionChanged += Device_ConnectionChanged;
         }
@@ -63,7 +61,7 @@ namespace SBC_2D.Presenters
 
         private void Device_ConnectionChanged(string name, bool isConnected)
         {
-            if (_device == null || name != _name)
+            if (_device.Name != name)
                 return;
             _view.SetConnected(isConnected);
         }
@@ -71,10 +69,12 @@ namespace SBC_2D.Presenters
         public async Task<bool> TriggerConnectAsync()
         {
             _view.SetConnecting(true);
-            bool isConnected = await _deviceService.ConnectAsync(_name, _socketConfig);
+            (string Name, bool Value) result = await _deviceManager.ConnectAsync(_device, _socketConfig);
             _view.SetConnecting(false);
-            _view.SetConnected(isConnected);
-            return isConnected;
+            _view.SetConnected(result.Value);
+            if (result.Value)
+                IniService.SaveSetupSectoinIpPort(_device.Name, _socketConfig.Address, _socketConfig.Port.ToString());
+            return result.Value;
         }
     }
 }

@@ -26,10 +26,22 @@ namespace SBC_2D.Infrastructures.User
             {
                 conn.Open();
                 string sql = "SELECT * FROM USER WHERE ID = @ID";
-                result = conn.QuerySingle<User>(sql, new { ID = id });
+                result = conn.QuerySingleOrDefault<User>(sql, new { ID = id });
             }
             return result;
         }
+
+        //public User Get(string id, int role)
+        //{
+        //    User result = null;
+        //    using (SqliteConnection conn = new SqliteConnection(_sqLiteConnectionString))
+        //    {
+        //        conn.Open();
+        //        string sql = "SELECT * FROM USER WHERE ID = @ID AND ROLE = @ROLE";
+        //        result = conn.QuerySingle<User>(sql, new { ID = id, ROLE = role });
+        //    }
+        //    return result;
+        //}
 
         public bool UpdatePw(string id, string pw)
         {

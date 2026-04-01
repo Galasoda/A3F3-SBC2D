@@ -10,7 +10,6 @@ public class Adam6052 : IIoDevice, IConnectableDevice, IDisposable
 {
     private AdamSocket _adamModbus;
     private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-
     public event Action<string, bool> ConnectionChanged;
 
     public string Name { get; }

@@ -1,5 +1,6 @@
 ﻿using Dapper.FluentMap;
 using SBC_2D.Domain.Servicies;
+using SBC_2D.Events;
 using SBC_2D.Infrastructures.Device;
 using SBC_2D.Infrastructures.Ini;
 using SBC_2D.Infrastructures.Recipe;
@@ -35,7 +36,7 @@ namespace SBC_2D
             });
             IniStore iniStore = new IniStore();
             IniService iniService = new IniService(iniStore);
-            iniStore.Setup = iniService.GetSetup();
+            iniStore.Setup = IniService.GetSetup();
 
             //Dao應該配合工廠方法，切換不同資料庫連線
             //Dao生命週期不應該留這麼久
@@ -45,26 +46,19 @@ namespace SBC_2D
             RecipeDao recipeDao = new RecipeDao(iniStore.Setup.PathConfig.SqLiteFile);
             RecipeService recipeService = new RecipeService(iniService, recipeDao);
 
-            DevicesStore devicesStore = new DevicesStore();
             DeviceManager deviceManager = new DeviceManager();
-            DeviceService deviceService = new DeviceService(deviceManager, iniStore.Setup.DeviceConfig, devicesStore, iniService);
-            List<IDevice> devices = DeviceFactory.CreateDevices(iniStore.Setup.DeviceConfig);
-            devicesStore.Devices.Clear();
-            devicesStore.Devices.AddRange(devices);
-            List<IoDeviceContext> iodcs = DeviceFactory.CreateIoDeviceContexts(devices.OfType<IIoDevice>());
-            devicesStore.IoDeviceContext.Clear();
-            devicesStore.IoDeviceContext.AddRange(iodcs);
-            //deviceManager.Initialize(devicesStore, iniStore.Setup.DeviceConfig);
+            deviceManager.Initialize(iniStore.Setup.DeviceConfig);
 
             Form1 form1 = new Form1();
             Form2 form2 = new Form2();
             Form3 form3 = new Form3();
             Form4 form4 = new Form4();
             FormMain formMain = new FormMain(form1, form2 , form3, form4);
-            UserPresenter userPresenter = new UserPresenter(form4, userService);
-            RecipePresenter recipePresenter = new RecipePresenter(recipeService, iniService, form2);
-            DevicePresenter devicePresenter = new DevicePresenter(form3, deviceService, iniService);
-            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter, userPresenter);
+            PresenterEventBus presenterEventBus = new PresenterEventBus();
+            UserPresenter userPresenter = new UserPresenter(form4, userService, presenterEventBus);
+            RecipePresenter recipePresenter = new RecipePresenter(recipeService, form2);
+            DevicePresenter devicePresenter = new DevicePresenter(form3, deviceManager);
+            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter, userPresenter, presenterEventBus);
             formMainPresenter.Initialize();
             Application.Run(formMain);
         }

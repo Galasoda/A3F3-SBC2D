@@ -21,7 +21,6 @@ namespace SBC_2D.Presenters
     public class RecipePresenter
     {
         private readonly RecipeService _recipeService;
-        private readonly IniService _iniService;
         private readonly IRecipeView _recipeView;
         private IZeroingView _zeroingView;
         private bool _isOnEdit;
@@ -36,10 +35,9 @@ namespace SBC_2D.Presenters
         public event Action<Recipe> RecipeChanged;
         public event Action<List<string>> Initialized;
 
-        public RecipePresenter(RecipeService recipeService, IniService iniService, IRecipeView recipeView)
+        public RecipePresenter(RecipeService recipeService, IRecipeView recipeView)
         {
             _recipeService = recipeService;
-            _iniService = iniService;
             _recipeView = recipeView;
             _editedRecipe = new Recipe();
             _currentRecipe = new Recipe();
@@ -72,7 +70,7 @@ namespace SBC_2D.Presenters
             _recipeManageViewMode = RecipeManageViewMode.Nothing;
             _recipeView.SetViewMode(_recipeManageViewMode);
             List<string> names = _recipeService.GetAllNames();
-            string name = _iniService.GetCurrentRecipeName() ?? string.Empty;
+            string name = IniService.GetCurrentRecipeName() ?? string.Empty;
             Recipe recipe = _recipeService.Get(name) ?? new Recipe();
             _allRecipeNames = names;
             _recipeView.ShowRecipeNames(names);
@@ -295,7 +293,7 @@ namespace SBC_2D.Presenters
             _recipeView.ShowHintForSave(false);
             _isOnEdit = false;
             _recipeView.SetEditMode(false);
-            _iniService.SaveCurrentRecipeName(_currentRecipe.Name);
+            IniService.SaveCurrentRecipeName(_currentRecipe.Name);
             RecipeChanged?.Invoke(recipe);
         }
 

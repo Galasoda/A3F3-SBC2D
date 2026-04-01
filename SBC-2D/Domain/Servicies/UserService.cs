@@ -39,9 +39,9 @@ namespace SBC_2D.Domain.Servicies
                     return false;
                 }
                 User u = _userDao.Get(user.Id);
-                if (u == null)
+                if (u == null || user.Id != u.Id)
                 {
-                    message = $"{(Role)user.Role} {user.Id} not found in database.";
+                    message = $"{(Role)user.Role} {user.Id} login failed, because user not exist..";
                     return false;
                 }
                 bool isPwMatched = user.Pw == u.Pw;

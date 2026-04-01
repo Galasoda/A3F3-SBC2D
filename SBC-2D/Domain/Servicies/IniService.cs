@@ -13,14 +13,14 @@ namespace SBC_2D.Domain.Servicies
 {
     public class IniService
     {
-        private readonly IniStore _store;
+        private static IniStore _store;
 
         public IniService(IniStore store)
         {
             _store = store;
         }
 
-        public string GetCurrentRecipeName()
+        public static string GetCurrentRecipeName()
         {
             string section = "Production";
             string key = "RecipeName";
@@ -30,14 +30,14 @@ namespace SBC_2D.Domain.Servicies
             return modelName;
         }
 
-        public void SaveCurrentRecipeName(string name)
+        public static void SaveCurrentRecipeName(string name)
         {
             string section = "Production";
             string key = "RecipeName";
             IniFile.Write(section, key, name, _store.SetupFilePath);
         }
 
-        public Setup GetSetup()
+        public static Setup GetSetup()
         {
             var pathConfig = GetPathConfig();
             var deviceConfig = GetDeviceConfig();
@@ -45,7 +45,7 @@ namespace SBC_2D.Domain.Servicies
             return new Setup(deviceConfig,  productionConfig, pathConfig);
         }
 
-        public PathConfig GetPathConfig()
+        public static PathConfig GetPathConfig()
         {
             PathConfig path = new PathConfig();
             string basePath = Application.StartupPath;
@@ -84,7 +84,7 @@ namespace SBC_2D.Domain.Servicies
             return path;
         }
 
-        public DeviceConfig GetDeviceConfig()
+        public static DeviceConfig GetDeviceConfig()
         {
             DeviceConfig deviceConfig = new DeviceConfig();
             try
@@ -119,7 +119,7 @@ namespace SBC_2D.Domain.Servicies
             return deviceConfig;
         }
 
-        public KeyValuePair<string, SocketConfig> GetSocketConfig(string section)
+        public static KeyValuePair<string, SocketConfig> GetSocketConfig(string section)
         {
             KeyValuePair<string, SocketConfig> result = new KeyValuePair<string, SocketConfig>(section, null);
             string bugInfo = "";
@@ -150,7 +150,7 @@ namespace SBC_2D.Domain.Servicies
             return result;
         }
 
-        private ProductionConfig GetProductionConfig()
+        private static ProductionConfig GetProductionConfig()
         {
             ProductionConfig config = new ProductionConfig();
             string section = "Production";
@@ -227,7 +227,7 @@ namespace SBC_2D.Domain.Servicies
             return config;
         }
 
-        public void SaveSetupSectoinIpPort(string section, string ip, string port)
+        public static void SaveSetupSectoinIpPort(string section, string ip, string port)
         {
             string keyIp = "IP";
             IniFile.Write(section, keyIp, ip, _store.SetupFilePath);
@@ -235,16 +235,15 @@ namespace SBC_2D.Domain.Servicies
             IniFile.Write(section, keyPort, port, _store.SetupFilePath);
         }
 
-        /* Helper From Model Layer */
-        public bool TryGetSocketConfig(string name, out SocketConfig config)
-            => _store.TryGetSocketConfig(name, out config);
-        public bool UpdateSetupSocketConfig(string name, SocketConfig config)
-        {
-            if (!_store.Setup.DeviceConfig.SocketConfigs.TryGetValue(name, out SocketConfig cfg))
-                return false;
-            cfg = config;
-            return true;
-        }
-
+        ///* Helper From Model Layer */
+        //public static bool TryGetSocketConfig(string name, out SocketConfig config)
+        //    => _store.TryGetSocketConfig(name, out config);
+        //public static bool UpdateSetupSocketConfig(string name, SocketConfig config)
+        //{
+        //    if (!_store.Setup.DeviceConfig.SocketConfigs.TryGetValue(name, out SocketConfig cfg))
+        //        return false;
+        //    cfg = config;
+        //    return true;
+        //}
     }
 }
