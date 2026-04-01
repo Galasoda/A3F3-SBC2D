@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SBC_2D.Infrastructures.Device
 {
-    public class IoDeviceContext : IIoEvents
+    public class IoDeviceContext
     {
         public IIoDevice Device { get; }
         public int DiStart { get; }

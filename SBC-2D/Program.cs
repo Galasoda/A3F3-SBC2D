@@ -44,7 +44,7 @@ namespace SBC_2D
             UserService userService = new UserService(userDao);
 
             RecipeDao recipeDao = new RecipeDao(iniStore.Setup.PathConfig.SqLiteFile);
-            RecipeService recipeService = new RecipeService(iniService, recipeDao);
+            RecipeService recipeService = new RecipeService(recipeDao);
 
             DeviceManager deviceManager = new DeviceManager();
             deviceManager.Initialize(iniStore.Setup.DeviceConfig);
@@ -56,10 +56,15 @@ namespace SBC_2D
             FormMain formMain = new FormMain(form1, form2 , form3, form4);
             PresenterEventBus presenterEventBus = new PresenterEventBus();
             UserPresenter userPresenter = new UserPresenter(form4, userService, presenterEventBus);
-            RecipePresenter recipePresenter = new RecipePresenter(recipeService, form2);
+            XmlDirSelectorPresenter xmlDirSelectorPresenter = new XmlDirSelectorPresenter(form4, presenterEventBus);
+            RecipePresenter recipePresenter = new RecipePresenter(recipeService, form2, presenterEventBus);
             DevicePresenter devicePresenter = new DevicePresenter(form3, deviceManager);
-            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter, userPresenter, presenterEventBus);
-            formMainPresenter.Initialize();
+            //FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter, userPresenter, presenterEventBus);
+            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, presenterEventBus);
+            userPresenter.Initialize();
+            recipePresenter.Initialize();
+            devicePresenter.Initialize();
+            _ = devicePresenter.ConnectAllAsync();
             Application.Run(formMain);
         }
     }

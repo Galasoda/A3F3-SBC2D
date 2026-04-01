@@ -13,7 +13,7 @@ using static SBC_2D.Shared.Enums;
 
 namespace SBC_2D.Views.Forms
 {
-    public partial class Form4 : Form, IUserLoginView
+    public partial class Form4 : Form, IUserLoginView, IXmlDirSelectorView
     {
         public event EventHandler UserLoginRequested;
         public event EventHandler ChangePwRequested;
@@ -22,6 +22,9 @@ namespace SBC_2D.Views.Forms
         public event EventHandler<string> IdChanged;
         public event EventHandler<string> PwChanged;
         public event EventHandler<string> NewPwChanged;
+        public event EventHandler InitializeRequested;
+        public event EventHandler ChangeDirRequested;
+        public event EventHandler<string> InsertTypeChanged;
 
         public Form4()
         {
@@ -50,6 +53,10 @@ namespace SBC_2D.Views.Forms
                     btn.BackColor = SystemColors.Control;
             }
         }
+        private void Form4_Load(object sender, EventArgs e)
+        {
+            InitializeRequested?.Invoke(this, e);
+        }
 
         public void ShowLogedMessage(string message)
             => richTextBoxLogedMessage.Text = message;
@@ -68,8 +75,17 @@ namespace SBC_2D.Views.Forms
 
         private void ButtonChangePw_Click(object sender, EventArgs e)
             => ChangePwRequested?.Invoke(this, e);
+
         private void ButtonCancel_Click(object sender, EventArgs e)
             => CancelChangePwRequested?.Invoke(this, e);
+
+        private void ButtonFileExplorer_Click(object sender, EventArgs e)
+            => ChangeDirRequested?.Invoke(this, e);
+
+        private void RadioButtonPahtTypeA_CheckedChanged(object sender, EventArgs e)
+            => InsertTypeChanged?.Invoke(this, "A");
+        private void RadioButtonPahtTypeB_CheckedChanged(object sender, EventArgs e)
+            => InsertTypeChanged?.Invoke(this, "B");
 
         public void ClearEnterInfos()
         {
@@ -99,5 +115,45 @@ namespace SBC_2D.Views.Forms
                 buttonChangePw.BringToFront();
             }
         }
+
+        public void ShowDirPath(string path)
+            => SafeInvoke(() => richTextBoxXmlPath.Text = path);
+
+        public void SetInsertType(string type)
+        {
+            SafeInvoke(() =>
+            {
+                switch (type)
+                {
+                    case "A":
+                        radioButtonPahtTypeA.Checked = true;
+                        break;
+                    case "B":
+                        radioButtonPahtTypeB.Checked = true;
+                        break;
+                    default:
+                        radioButtonPahtTypeA.Checked = true;
+                        break;
+                }
+            });
+        }
+
+        public string SelectXmlFile()
+        {
+            using (OpenFileDialog dialog = new OpenFileDialog())
+            {
+                return dialog.ShowDialog() == DialogResult.OK
+                    ? dialog.FileName
+                    : null;
+            }
+        }
+
+        private void SafeInvoke(Action action)
+        {
+            if (IsDisposed || Disposing) return;
+            if (InvokeRequired) Invoke(action);
+            else action();
+        }
+
     }
 }

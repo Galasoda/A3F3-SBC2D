@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace SBC_2D.Infrastructures.Device
 {
-    public interface IConnectableDevice : IDevice , IDeviceConnectionEvents
+    public interface IConnectableDevice : IDevice
     {
+        event Action<string, bool> ConnectionChanged;
         bool IsConnected { get; }
         bool Connect(IConnectionConfig config);
         void Disconnect();

@@ -19,11 +19,9 @@ namespace SBC_2D.Servicies
     public class RecipeService
     {
         private RecipeDao _recipeDao;
-        private IniService _iniService;
-        public RecipeService(IniService iniService, RecipeDao recipeDao)
+        public RecipeService(RecipeDao recipeDao)
         {
             _recipeDao = recipeDao;
-            _iniService = iniService;
         }
 
         public List<string> GetAllNames()

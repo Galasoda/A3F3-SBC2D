@@ -13,26 +13,31 @@ using System.Xml.Linq;
 
 namespace SBC_2D.Presenters
 {
-    public class DeviceConnectionPresenter
+    public class DeviceConnectionPresenter : IDisposable
     {
         private readonly IDeviceConnectionView _view;
         private IConnectableDevice _device;
         private SocketConfig _socketConfig;
-        private DeviceManager _deviceManager;
 
-        public DeviceConnectionPresenter(IDeviceConnectionView view, IConnectableDevice device, SocketConfig config, DeviceManager deviceManager)
+
+        public DeviceConnectionPresenter(IDeviceConnectionView view, IConnectableDevice device, SocketConfig config)
         {
             _view = view;
             _device = device;
             _socketConfig = config;
-            _deviceManager = deviceManager;
+            _view.IpChanged += View_IpChanged;
+            _view.PortChanged += View_PortChanged;
+            _view.RequestConnection += View_RquestedConnection;
+        }
+        public void Dispose()
+        {
+            _view.IpChanged -= View_IpChanged;
+            _view.PortChanged -= View_PortChanged;
+            _view.RequestConnection -= View_RquestedConnection;
         }
 
         public void Initialize()
         {
-            _view.IpChanged += View_IpChanged;
-            _view.PortChanged += View_PortChanged;
-            _view.RequestConnection += View_RquestedConnection;
             _view.SetName(_device.Name ?? "");
             _view.SetIp(_socketConfig.Address);
             _view.SetPort(_socketConfig.Port > -1 ? _socketConfig.Port.ToString() : "");
@@ -56,7 +61,22 @@ namespace SBC_2D.Presenters
 
         private async void View_RquestedConnection(object sender, EndPointArgs e)
         {
-            await TriggerConnectAsync();
+            _view.SetConnecting(true);
+            var isConnected = await Task.Run(() =>
+            {
+                try
+                {
+                    return _device.Connect(_socketConfig);
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+            _view.SetConnecting(false);
+            _view.SetConnected(isConnected);
+            if (isConnected)
+                IniService.SaveSetupSectoinIpPort(_device.Name, _socketConfig.Address, _socketConfig.Port.ToString());
         }
 
         private void Device_ConnectionChanged(string name, bool isConnected)
@@ -64,17 +84,6 @@ namespace SBC_2D.Presenters
             if (_device.Name != name)
                 return;
             _view.SetConnected(isConnected);
-        }
-
-        public async Task<bool> TriggerConnectAsync()
-        {
-            _view.SetConnecting(true);
-            (string Name, bool Value) result = await _deviceManager.ConnectAsync(_device, _socketConfig);
-            _view.SetConnecting(false);
-            _view.SetConnected(result.Value);
-            if (result.Value)
-                IniService.SaveSetupSectoinIpPort(_device.Name, _socketConfig.Address, _socketConfig.Port.ToString());
-            return result.Value;
         }
     }
 }

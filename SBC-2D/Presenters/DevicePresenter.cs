@@ -44,7 +44,7 @@ namespace SBC_2D.Presenters
                     config = new KeyValuePair<string, SocketConfig>(name, new SocketConfig("", -1));
                 if (device is IConnectableDevice connectableDevice)
                 {
-                    var presenter = new DeviceConnectionPresenter(view, connectableDevice, config.Value, _deviceManager);
+                    var presenter = new DeviceConnectionPresenter(view, connectableDevice, config.Value);
                     _deviceConnectionPresenters.Add(presenter);
                     presenter.Initialize();
                 }
@@ -84,10 +84,7 @@ namespace SBC_2D.Presenters
         }
 
         public async Task ConnectAllAsync()
-        {
-            foreach (var p in _deviceConnectionPresenters)
-                await p.TriggerConnectAsync();
-        }
+            => await _deviceManager.ConnectAllAsync();
 
         private void View_OutputClicked(object sender, int index)
         {

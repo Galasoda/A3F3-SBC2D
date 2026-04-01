@@ -208,9 +208,7 @@
     <Compile Include="Domain\Servicies\ErrorService.cs" />
     <Compile Include="Domain\Servicies\RecipeService.cs" />
     <Compile Include="Domain\Servicies\UserService.cs" />
-    <Compile Include="Events\IDeviceConnectionEvents.cs" />
     <Compile Include="Events\IEventBus.cs" />
-    <Compile Include="Events\IIoEvents.cs" />
     <Compile Include="Events\PresenterEventBus.cs" />
     <Compile Include="Infrastructures\Device\DeviceNames.cs" />
     <Compile Include="Infrastructures\Device\IBarcodeReaderDevice.cs" />
@@ -232,7 +230,6 @@
     <Compile Include="Infrastructures\Recipe\Recipe.cs" />
     <Compile Include="Infrastructures\Recipe\RecipeDao.cs" />
     <Compile Include="Infrastructures\Recipe\RecipeMap.cs" />
-    <Compile Include="Infrastructures\Recipe\RecipeRepository.cs" />
     <Compile Include="Infrastructures\User\User.cs" />
     <Compile Include="Infrastructures\User\UserDao.cs" />
     <Compile Include="Infrastructures\User\UserMap.cs" />
@@ -241,6 +238,7 @@
     <Compile Include="Presenters\FormMainPresenter.cs" />
     <Compile Include="Presenters\RecipePresenter.cs" />
     <Compile Include="Presenters\UserPresenter.cs" />
+    <Compile Include="Presenters\XmlDirSelectorPresenter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructures\Ini\IniFile.cs" />
@@ -271,6 +269,7 @@
       <DependentUpon>FormZeroing.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Interfaces\IDeviceConnectionView.cs" />
+    <Compile Include="Views\Interfaces\IXmlDirSelectorView.cs" />
     <Compile Include="Views\Interfaces\IFormMainView.cs" />
     <Compile Include="Views\Interfaces\IOutView.cs" />
     <Compile Include="Views\Interfaces\IForm3View.cs" />

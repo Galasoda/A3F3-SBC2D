@@ -1,5 +1,6 @@
 ﻿using Dapper.FluentMap.Mapping;
 using SBC_2D.Domain.Servicies;
+using SBC_2D.Events;
 using SBC_2D.Infrastructures.Recipe;
 using SBC_2D.Servicies;
 using SBC_2D.Shared;
@@ -18,7 +19,7 @@ using static SBC_2D.Shared.Enums;
 
 namespace SBC_2D.Presenters
 {
-    public class RecipePresenter
+    public class RecipePresenter : IDisposable
     {
         private readonly RecipeService _recipeService;
         private readonly IRecipeView _recipeView;
@@ -30,23 +31,17 @@ namespace SBC_2D.Presenters
         private string _selectedName = "";
         private RecipeManageViewMode _recipeManageViewMode;
         private readonly Dictionary<string, PropertyInfo> _propertyCache;
+        private IEventBus _eventBus;
 
-        // Events
-        public event Action<Recipe> RecipeChanged;
-        public event Action<List<string>> Initialized;
-
-        public RecipePresenter(RecipeService recipeService, IRecipeView recipeView)
+        public RecipePresenter(RecipeService recipeService, IRecipeView recipeView, IEventBus eventBus)
         {
+            _eventBus = eventBus;
             _recipeService = recipeService;
             _recipeView = recipeView;
             _editedRecipe = new Recipe();
             _currentRecipe = new Recipe();
             _propertyCache = typeof(Recipe).GetProperties().ToDictionary(p => p.Name);
             _allRecipeNames = new List<string>();
-        }
-
-        public void Initialize()
-        {
             _recipeView.ToggleEditModeRequested += RecipeView_ToggleEditMode;
             _recipeView.ActionRequested += RecipeView_ActionRequested;
             _recipeView.ActionConfirmed += RecipeView_ActionConfirmed;
@@ -64,7 +59,31 @@ namespace SBC_2D.Presenters
             _recipeView.BlockNumYChanged += RecipeView_BlockNumYChanged;
             _recipeView.RotateChanged += RecipeView_RotateChanged;
             _recipeView.ThicknessZeroingViewOpend += RecipeView_ThicknessZeroingViewOpened;
+        }
 
+        public void Dispose()
+        {
+            _recipeView.ToggleEditModeRequested -= RecipeView_ToggleEditMode;
+            _recipeView.ActionRequested -= RecipeView_ActionRequested;
+            _recipeView.ActionConfirmed -= RecipeView_ActionConfirmed;
+            _recipeView.ActionCancelled -= RecipeView_ActionCancelled;
+            _recipeView.MapModeBypassChanged -= RecipeView_MapModeBypassChanged;
+            _recipeView.UpperBrBypassChanged -= RecipeView_UpperBrBypassChanged;
+            _recipeView.LowerBrBypassChanged -= RecipeView_LowerBrBypassChanged;
+            _recipeView.LdsBypassChanged -= RecipeView_LdsBypassChanged;
+            _recipeView.ModelNameSelectChanged -= RecipeView_ModelNameSelectChanged;
+            _recipeView.ThicknessChanged -= RecipeView_ThicknessChanged;
+            _recipeView.ThicknessTolerationChanged -= RecipeView_ThicknessTolerationChanged;
+            _recipeView.BlockXChanged -= RecipeView_BlockXChanged;
+            _recipeView.BlockYChanged -= RecipeView_BlockYChanged;
+            _recipeView.BlockNumXChanged -= RecipeView_BlockNumXChanged;
+            _recipeView.BlockNumYChanged -= RecipeView_BlockNumYChanged;
+            _recipeView.RotateChanged -= RecipeView_RotateChanged;
+            _recipeView.ThicknessZeroingViewOpend -= RecipeView_ThicknessZeroingViewOpened;
+        }
+
+        public void Initialize()
+        {
             _isOnEdit = false;
             _recipeView.SetEditMode(_isOnEdit);
             _recipeManageViewMode = RecipeManageViewMode.Nothing;
@@ -294,7 +313,7 @@ namespace SBC_2D.Presenters
             _isOnEdit = false;
             _recipeView.SetEditMode(false);
             IniService.SaveCurrentRecipeName(_currentRecipe.Name);
-            RecipeChanged?.Invoke(recipe);
+            _eventBus.Publish(recipe);
         }
 
         public void RequestAction(RecipeManageViewMode action)

@@ -39,10 +39,12 @@
             this.listBoxCodeTrace = new System.Windows.Forms.ListBox();
             this.tabPagePremission = new System.Windows.Forms.TabPage();
             this.groupBoxUserLogin = new System.Windows.Forms.GroupBox();
-            this.buttonLogin = new System.Windows.Forms.Button();
             this.labelNewPw = new System.Windows.Forms.Label();
             this.textBoxNewPw = new System.Windows.Forms.TextBox();
             this.labelId = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.buttonLogin = new System.Windows.Forms.Button();
+            this.buttonCancel = new System.Windows.Forms.Button();
             this.textBoxPw = new System.Windows.Forms.TextBox();
             this.textBoxId = new System.Windows.Forms.TextBox();
             this.labelPw = new System.Windows.Forms.Label();
@@ -68,8 +70,6 @@
             this.richTextBoxXmlPath = new System.Windows.Forms.RichTextBox();
             this.radioButtonPahtTypeA = new System.Windows.Forms.RadioButton();
             this.buttonFileExplorer = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.buttonCancel = new System.Windows.Forms.Button();
             this.tabControlLogs.SuspendLayout();
             this.tabPageErrorLog.SuspendLayout();
             this.tabPageSystemLog.SuspendLayout();
@@ -77,9 +77,9 @@
             this.tabPageCodeTrace.SuspendLayout();
             this.tabPagePremission.SuspendLayout();
             this.groupBoxUserLogin.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.groupBoxLockMachineSetting.SuspendLayout();
             this.groupBoxXmlSetting.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControlLogs
@@ -218,23 +218,10 @@
             this.groupBoxUserLogin.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
             this.groupBoxUserLogin.Location = new System.Drawing.Point(8, 6);
             this.groupBoxUserLogin.Name = "groupBoxUserLogin";
-            this.groupBoxUserLogin.Size = new System.Drawing.Size(345, 344);
+            this.groupBoxUserLogin.Size = new System.Drawing.Size(345, 332);
             this.groupBoxUserLogin.TabIndex = 11011;
             this.groupBoxUserLogin.TabStop = false;
             this.groupBoxUserLogin.Text = "使用者";
-            // 
-            // buttonLogin
-            // 
-            this.buttonLogin.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.buttonLogin.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
-            this.buttonLogin.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.buttonLogin.Location = new System.Drawing.Point(0, 0);
-            this.buttonLogin.Name = "buttonLogin";
-            this.buttonLogin.Size = new System.Drawing.Size(226, 41);
-            this.buttonLogin.TabIndex = 10991;
-            this.buttonLogin.Text = "確定";
-            this.buttonLogin.UseVisualStyleBackColor = true;
-            this.buttonLogin.Click += new System.EventHandler(this.ButtonLogin_Click);
             // 
             // labelNewPw
             // 
@@ -277,6 +264,41 @@
             this.labelId.TabIndex = 10992;
             this.labelId.Text = "工號";
             this.labelId.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.buttonLogin);
+            this.panel1.Controls.Add(this.buttonCancel);
+            this.panel1.Location = new System.Drawing.Point(8, 205);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(331, 41);
+            this.panel1.TabIndex = 11012;
+            // 
+            // buttonLogin
+            // 
+            this.buttonLogin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonLogin.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
+            this.buttonLogin.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.buttonLogin.Location = new System.Drawing.Point(0, 0);
+            this.buttonLogin.Name = "buttonLogin";
+            this.buttonLogin.Size = new System.Drawing.Size(226, 41);
+            this.buttonLogin.TabIndex = 10991;
+            this.buttonLogin.Text = "確定";
+            this.buttonLogin.UseVisualStyleBackColor = true;
+            this.buttonLogin.Click += new System.EventHandler(this.ButtonLogin_Click);
+            // 
+            // buttonCancel
+            // 
+            this.buttonCancel.Dock = System.Windows.Forms.DockStyle.Right;
+            this.buttonCancel.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
+            this.buttonCancel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.buttonCancel.Location = new System.Drawing.Point(226, 0);
+            this.buttonCancel.Name = "buttonCancel";
+            this.buttonCancel.Size = new System.Drawing.Size(105, 41);
+            this.buttonCancel.TabIndex = 11013;
+            this.buttonCancel.Text = "取消 ";
+            this.buttonCancel.UseVisualStyleBackColor = true;
+            this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
             // 
             // textBoxPw
             // 
@@ -323,7 +345,7 @@
             this.richTextBoxLogedMessage.Location = new System.Drawing.Point(8, 253);
             this.richTextBoxLogedMessage.Name = "richTextBoxLogedMessage";
             this.richTextBoxLogedMessage.ReadOnly = true;
-            this.richTextBoxLogedMessage.Size = new System.Drawing.Size(331, 86);
+            this.richTextBoxLogedMessage.Size = new System.Drawing.Size(331, 74);
             this.richTextBoxLogedMessage.TabIndex = 11008;
             this.richTextBoxLogedMessage.Text = "";
             // 
@@ -563,6 +585,7 @@
             this.radioButtonPahtTypeB.TabStop = true;
             this.radioButtonPahtTypeB.Text = "B Type";
             this.radioButtonPahtTypeB.UseVisualStyleBackColor = true;
+            this.radioButtonPahtTypeB.CheckedChanged += new System.EventHandler(this.RadioButtonPahtTypeB_CheckedChanged);
             // 
             // richTextBoxXmlPath
             // 
@@ -586,6 +609,7 @@
             this.radioButtonPahtTypeA.TabStop = true;
             this.radioButtonPahtTypeA.Text = "A Type";
             this.radioButtonPahtTypeA.UseVisualStyleBackColor = true;
+            this.radioButtonPahtTypeA.CheckedChanged += new System.EventHandler(this.RadioButtonPahtTypeA_CheckedChanged);
             // 
             // buttonFileExplorer
             // 
@@ -597,28 +621,7 @@
             this.buttonFileExplorer.TabIndex = 10984;
             this.buttonFileExplorer.Text = "更換";
             this.buttonFileExplorer.UseVisualStyleBackColor = true;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.buttonLogin);
-            this.panel1.Controls.Add(this.buttonCancel);
-            this.panel1.Location = new System.Drawing.Point(8, 205);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(331, 41);
-            this.panel1.TabIndex = 11012;
-            // 
-            // buttonCancel
-            // 
-            this.buttonCancel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.buttonCancel.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
-            this.buttonCancel.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.buttonCancel.Location = new System.Drawing.Point(226, 0);
-            this.buttonCancel.Name = "buttonCancel";
-            this.buttonCancel.Size = new System.Drawing.Size(105, 41);
-            this.buttonCancel.TabIndex = 11013;
-            this.buttonCancel.Text = "取消 ";
-            this.buttonCancel.UseVisualStyleBackColor = true;
-            this.buttonCancel.Click += new System.EventHandler(this.ButtonCancel_Click);
+            this.buttonFileExplorer.Click += new System.EventHandler(this.ButtonFileExplorer_Click);
             // 
             // Form4
             // 
@@ -629,6 +632,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "Form4";
             this.Text = "Form4";
+            this.Load += new System.EventHandler(this.Form4_Load);
             this.tabControlLogs.ResumeLayout(false);
             this.tabPageErrorLog.ResumeLayout(false);
             this.tabPageSystemLog.ResumeLayout(false);
@@ -638,11 +642,11 @@
             this.tabPagePremission.PerformLayout();
             this.groupBoxUserLogin.ResumeLayout(false);
             this.groupBoxUserLogin.PerformLayout();
+            this.panel1.ResumeLayout(false);
             this.groupBoxLockMachineSetting.ResumeLayout(false);
             this.groupBoxLockMachineSetting.PerformLayout();
             this.groupBoxXmlSetting.ResumeLayout(false);
             this.groupBoxXmlSetting.PerformLayout();
-            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }

@@ -12,27 +12,22 @@ using static SBC_2D.Shared.Enums;
 
 namespace SBC_2D.Presenters
 {
-    public class UserPresenter
+    public class UserPresenter : IDisposable
     {
         private readonly IUserLoginView _userLoginView;
         private readonly UserService _userService;
         private User _user;
         private string _newPw;
         private bool _isOnChangePw;
-        private PresenterEventBus _presenterEventBus;
-        public event Action<Role, string> UserChanged;
+        private IEventBus _eventBus;
 
 
-        public UserPresenter(IUserLoginView userLoginView, UserService userService, PresenterEventBus presenterEventBus)
+        public UserPresenter(IUserLoginView userLoginView, UserService userService, IEventBus eventBus)
         {
-            _presenterEventBus = presenterEventBus;
+            _eventBus = eventBus;
             _userLoginView = userLoginView;
             _userService = userService;
             _user = new User();
-        }
-
-        public void Initialize()
-        {
             _userLoginView.RoleChanged += UserLoginView_RoleChanged;
             _userLoginView.IdChanged += UserLoginView_IdChanged;
             _userLoginView.PwChanged += UserLoginView_PwChanged;
@@ -40,6 +35,21 @@ namespace SBC_2D.Presenters
             _userLoginView.UserLoginRequested += UserLoginView_UserLoginRequested;
             _userLoginView.ChangePwRequested += UserLoginView_ChangePwRequested;
             _userLoginView.CancelChangePwRequested += UserLoginView_CancelChangePwRequested;
+        }
+
+        public void Dispose()
+        {
+            _userLoginView.RoleChanged -= UserLoginView_RoleChanged;
+            _userLoginView.IdChanged -= UserLoginView_IdChanged;
+            _userLoginView.PwChanged -= UserLoginView_PwChanged;
+            _userLoginView.NewPwChanged -= UserLoginView_NewPwChanged;
+            _userLoginView.UserLoginRequested -= UserLoginView_UserLoginRequested;
+            _userLoginView.ChangePwRequested -= UserLoginView_ChangePwRequested;
+            _userLoginView.CancelChangePwRequested -= UserLoginView_CancelChangePwRequested;
+        }
+
+        public void Initialize()
+        {
             _user.Id = string.Empty;
             _user.Pw = string.Empty;
             _isOnChangePw = false;
@@ -70,7 +80,7 @@ namespace SBC_2D.Presenters
             {
                 if (Login(out message))
                 {
-                    UserChanged?.Invoke((Role)_user.Role, _user.Id);
+                    _eventBus.Publish<(Role, string)>(((Role)_user.Role, _user.Id));
                     _userLoginView.ClearEnterInfos();
                 }
                 _userLoginView.ShowLogedMessage(message);
@@ -107,8 +117,7 @@ namespace SBC_2D.Presenters
             {
                 _user.Pw = string.Empty;
                 _userLoginView.ClearEnterInfos();
-                UserChanged?.Invoke((Role)_user.Role, _user.Id);
-                _presenterEventBus.Publish<(Role, string)>(((Role)_user.Role, _user.Id));
+                _eventBus.Publish<(Role, string)>(((Role)_user.Role, _user.Id));
             }
             return isLoged;
         }

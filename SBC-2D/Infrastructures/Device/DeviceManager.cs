@@ -10,7 +10,7 @@ using System.Xml.Linq;
 
 namespace SBC_2D.Infrastructures.Device
 {
-    public class DeviceManager
+    public class DeviceManager : IDisposable
     {
         private List<IDevice> _devices;
         private List<IConnectableDevice> _connectableDevices;
@@ -33,6 +33,7 @@ namespace SBC_2D.Infrastructures.Device
             _connectLimit = new SemaphoreSlim(3);
             _deviceConfig = new DeviceConfig();
             _devices = new List<IDevice>();
+            _connectableDevices = new List<IConnectableDevice>();
             _ioDeviceContexts = new List<IoDeviceContext>();
         }
 
@@ -46,32 +47,32 @@ namespace SBC_2D.Infrastructures.Device
             _ioDeviceContexts.Clear();
             _ioDeviceContexts.AddRange(iodcs);
             _deviceConfig = deviceConfig;
-            //foreach (var device in _connectableDevices)
-            //{
-            //    if (device is IIoDevice ioDevice)
-            //    {
-            //        device.ConnectionChanged -= IoDevice_ConnectionChanged;
-            //        device.ConnectionChanged += IoDevice_ConnectionChanged;
-            //    }
-            //}
+            foreach (var device in _connectableDevices)
+            {
+                if (device is IIoDevice ioDevice)
+                {
+                    device.ConnectionChanged -= IoDevice_ConnectionChanged;
+                    device.ConnectionChanged += IoDevice_ConnectionChanged;
+                }
+            }
         }
 
-        //private async void IoDevice_ConnectionChanged(string name, bool status)
-        //{
-        //    var iodc = _ioDeviceContexts.FirstOrDefault(c => c.Device.Name == name);
-        //    if (iodc == null)
-        //        return;
-        //    if (status)
-        //    {
-        //        if (!iodc.IsStartedUpdatingDios)
-        //            _ = iodc.StartUpdatingDios();
-        //    }
-        //    else
-        //    {
-        //        if (iodc.IsStartedUpdatingDios)
-        //            await iodc.StopUpdatingDios();
-        //    }
-        //}
+        private async void IoDevice_ConnectionChanged(string name, bool status)
+        {
+            var iodc = _ioDeviceContexts.FirstOrDefault(c => c.Device.Name == name);
+            if (iodc == null)
+                return;
+            if (status)
+            {
+                if (!iodc.IsStartedUpdatingDios)
+                    _ = iodc.StartUpdatingDios();
+            }
+            else
+            {
+                if (iodc.IsStartedUpdatingDios)
+                    await iodc.StopUpdatingDios();
+            }
+        }
 
         /* Connection */
         public async Task<Dictionary<string, bool>> ConnectAllAsync()
@@ -218,11 +219,10 @@ namespace SBC_2D.Infrastructures.Device
         }
 
 
-        /* Helper */
-        public bool TryGetConnectableDevice(string name, out IConnectableDevice device)
+        public void Dispose()
         {
-            device = _devices.OfType<IConnectableDevice>().FirstOrDefault(d => d.Name.Equals(name));
-            return device != null;
+            _connectLimit?.Dispose();
+            _ctsPollingDevicesConnection?.Dispose();
         }
     }
 }

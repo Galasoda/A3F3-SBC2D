@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SBC_2D.Events
 {
-    //這是mediator
+    /// <summary>
+    /// 事件總線 — 簡單的 Pub/Sub 管道
+    /// 用途：A 和 B 透過事件通訊，互相不知道彼此
+    /// </summary>
     public class PresenterEventBus : IEventBus
     {
-        //這是事件資料的型別，這個事件型別會被數個委派方法給使用
-        //Delegate 是 C# 裡所有方法的基底
-        private Dictionary<Type, List<Delegate>> _handlers;
-        
+        private readonly Dictionary<Type, List<Delegate>> _handlers;
+        private readonly object _lock = new object();
+
         public PresenterEventBus()
         {
             _handlers = new Dictionary<Type, List<Delegate>>();
@@ -20,25 +19,65 @@ namespace SBC_2D.Events
 
         public void Publish<T>(T payload)
         {
-            var type = typeof(T);
+            Delegate[] snapshot;
 
-            if (!_handlers.ContainsKey(type))
-                return;
-
-            foreach (Action<T> handler in _handlers[type].Cast<Action<T>>())
+            lock (_lock)
             {
-                handler(payload);
+                var type = typeof(T);
+                if (!_handlers.TryGetValue(type, out var list))
+                    return;
+                snapshot = list.ToArray();
+            }
+
+            // 在鎖外執行，避免長時間卡住
+            foreach (var handler in snapshot)
+            {
+                try
+                {
+                    ((Action<T>)handler)(payload);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[EventBus] {typeof(T).Name} handler failed: {ex.Message}");
+                }
             }
         }
 
         public void Subscribe<T>(Action<T> handler)
         {
+            if (handler == null)
+                throw new ArgumentNullException(nameof(handler));
+
             var type = typeof(T);
 
-            if (!_handlers.ContainsKey(type))
-                _handlers[type] = new List<Delegate>();
+            lock (_lock)
+            {
+                if (!_handlers.TryGetValue(type, out var list))
+                {
+                    list = new List<Delegate>();
+                    _handlers[type] = list;
+                }
+                list.Add(handler);
+            }
+        }
 
-            _handlers[type].Add(handler);
+        /// <summary>取消訂閱</summary>
+        public void Unsubscribe<T>(Action<T> handler)
+        {
+            if (handler == null)
+                throw new ArgumentNullException(nameof(handler));
+
+            var type = typeof(T);
+
+            lock (_lock)
+            {
+                if (_handlers.TryGetValue(type, out var list))
+                {
+                    list.Remove(handler);
+                    if (list.Count == 0)
+                        _handlers.Remove(type);
+                }
+            }
         }
     }
 }

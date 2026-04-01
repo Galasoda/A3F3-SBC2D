@@ -55,7 +55,7 @@ namespace SBC_2D.Domain.Servicies
             if (!IniFile.TryGetValue(section, "InsertType", "", _store.SetupFilePath, out string insertType))
                 bugInfo += "Missing InsertType.\r\n";
             else
-                path.InsertType = basePath + insertType;
+                path.InsertType = insertType;
 
             if (!IniFile.TryGetValue(section, "BskDir", "", _store.SetupFilePath, out string bskDir))
                 bugInfo += "Missing BskDir.\r\n";
@@ -150,16 +150,11 @@ namespace SBC_2D.Domain.Servicies
             return result;
         }
 
-        private static ProductionConfig GetProductionConfig()
+        public static ProductionConfig GetProductionConfig()
         {
             ProductionConfig config = new ProductionConfig();
             string section = "Production";
             string bugInfo = string.Empty;
-
-            if (!IniFile.TryGetValue(section, "Pqty", "", _store.SetupFilePath, out string pqtyStr) || !int.TryParse(pqtyStr, out int pqty))
-                bugInfo += "Invalid or missing Pqty.\r\n";
-            else
-                config.Pqty = pqty;
 
             if (!IniFile.TryGetValue(section, "RecipeName", "", _store.SetupFilePath, out string name))
                 bugInfo += "Missing ModelName.\r\n";
@@ -235,7 +230,23 @@ namespace SBC_2D.Domain.Servicies
             IniFile.Write(section, keyPort, port, _store.SetupFilePath);
         }
 
-        ///* Helper From Model Layer */
+        public static void SaveXmlDirPath(string path)
+        {
+            string section = "Path";
+            string key = "XmlDir";
+            IniFile.Write(section, key, path, _store.SetupFilePath);
+        }
+
+
+        /* Helper From Model Layer */
+        public static void SetXmlDirPath(string path)
+        {
+            _store.Setup.PathConfig.XmlDir = path;
+        }
+
+
+
+
         //public static bool TryGetSocketConfig(string name, out SocketConfig config)
         //    => _store.TryGetSocketConfig(name, out config);
         //public static bool UpdateSetupSocketConfig(string name, SocketConfig config)
