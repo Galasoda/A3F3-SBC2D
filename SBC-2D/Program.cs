@@ -49,8 +49,7 @@ namespace SBC_2D
 
             DeviceManager deviceManager = new DeviceManager();
             deviceManager.Initialize(iniStore.Setup.DeviceConfig);
-            ErrorManager errorManager = new ErrorManager();
-            Machine machine = new Machine(deviceManager, errorManager, iniStore.Setup);
+            Machine machine = new Machine(deviceManager, iniStore.Setup);
             machine.Initialize();
             Form1 form1 = new Form1();
             Form2 form2 = new Form2();

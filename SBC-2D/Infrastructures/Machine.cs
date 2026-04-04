@@ -24,9 +24,10 @@ public class Machine
     public bool IsAutoRunning
         => _autoRunTask != null && !_autoRunTask.IsCompleted;
 
+    public event Action<MachineStatus> OnStatusChanged;
+
     public Machine(
         DeviceManager deviceManager,
-        SystemIo systemIo,
         Setup setup)
     {
         _deviceManager = deviceManager;
