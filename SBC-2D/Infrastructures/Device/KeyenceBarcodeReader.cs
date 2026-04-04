@@ -29,22 +29,19 @@ namespace SBC_2D.Infrastructures.Device
 
         public bool Connect(IConnectionConfig config)
         {
-            bool success = false;
             _socketClientLock.Wait();
             try
             {
                 SocketConfig cfg = config as SocketConfig;
+                if(cfg == null)
+                    throw new ArgumentException($"{nameof(config)} is not {nameof(SocketConfig)}");
                 if (_socketClient != null)
                     ShutdownClose();
                 _socketClient = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IAsyncResult result = _socketClient.BeginConnect(IPAddress.Parse(cfg.Address.Trim()), cfg.Port, null, null);
-                success = result.AsyncWaitHandle.WaitOne(2000, true);
-                if (!success)
-                {
-                    IsConnected = false;
-                    return false;
-                    //throw new Exception($"{nameof(KeyenceBarcodeReader)} Connect timeout.");
-                }
+                IsConnected = result.AsyncWaitHandle.WaitOne(2000, true);
+                if (!IsConnected)
+                    throw new Exception($"{nameof(KeyenceBarcodeReader)} Connect timeout.");
                 _socketClient.EndConnect(result);
                 _socketClient.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, new LingerOption(true, 0));
                 _socketClient.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
@@ -56,9 +53,14 @@ namespace SBC_2D.Infrastructures.Device
                 IsConnected = _socketClient.Connected;
                 return true;
             }
+            catch (Exception ex)
+            {
+                IsConnected = false;
+                return false;
+            }
             finally
             {
-                ConnectionChanged?.Invoke(Name, success);
+                ConnectionChanged?.Invoke(Name, IsConnected);
                 _socketClientLock.Release();
             }
         }

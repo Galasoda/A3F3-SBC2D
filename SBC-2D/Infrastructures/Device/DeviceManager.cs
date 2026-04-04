@@ -1,8 +1,8 @@
 ﻿using SBC_2D.Domain.Servicies;
-using SBC_2D.Events;
 using SBC_2D.Infrastructures.Ini;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Core.Objects.DataClasses;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,18 +14,22 @@ namespace SBC_2D.Infrastructures.Device
     {
         private List<IDevice> _devices;
         private List<IConnectableDevice> _connectableDevices;
-        private List<IoDeviceContext> _ioDeviceContexts;
         private DeviceConfig _deviceConfig;
         private SemaphoreSlim _connectLimit;
         private Task _pollingDevicesTask;
         private CancellationTokenSource _ctsPollingDevicesConnection;
+        private Task _updateDiosTask;
+        private CancellationTokenSource _ctsUpdatingDios;
         public IReadOnlyList<IDevice> Devices => _devices;
         public IReadOnlyList<IConnectableDevice> ConnectableDevices => _connectableDevices;
-        public IReadOnlyList<IoDeviceContext> IoDeviceContexts => _ioDeviceContexts;
-
+        public SystemIo SystemIo { get; private set; }
         public bool IsStartedPollingDevicesConnection
         {
             get => _ctsPollingDevicesConnection != null && !_ctsPollingDevicesConnection.IsCancellationRequested;
+        }
+        public bool IsStartedUpdatingDios
+        {
+            get => _ctsUpdatingDios != null && !_ctsUpdatingDios.IsCancellationRequested;
         }
 
         public DeviceManager()
@@ -34,7 +38,13 @@ namespace SBC_2D.Infrastructures.Device
             _deviceConfig = new DeviceConfig();
             _devices = new List<IDevice>();
             _connectableDevices = new List<IConnectableDevice>();
-            _ioDeviceContexts = new List<IoDeviceContext>();
+            SystemIo = new SystemIo(new List<(IIoDevice, int DiStart, int DoStart)>());
+        }
+
+        public void Dispose()
+        {
+            _connectLimit?.Dispose();
+            _ctsPollingDevicesConnection?.Dispose();
         }
 
         public void Initialize(DeviceConfig deviceConfig)
@@ -43,35 +53,7 @@ namespace SBC_2D.Infrastructures.Device
             _devices.Clear();
             _devices.AddRange(devices);
             _connectableDevices = _devices.OfType<IConnectableDevice>().ToList();
-            List<IoDeviceContext> iodcs = DeviceFactory.CreateIoDeviceContexts(devices.OfType<IIoDevice>());
-            _ioDeviceContexts.Clear();
-            _ioDeviceContexts.AddRange(iodcs);
             _deviceConfig = deviceConfig;
-            foreach (var device in _connectableDevices)
-            {
-                if (device is IIoDevice ioDevice)
-                {
-                    device.ConnectionChanged -= IoDevice_ConnectionChanged;
-                    device.ConnectionChanged += IoDevice_ConnectionChanged;
-                }
-            }
-        }
-
-        private async void IoDevice_ConnectionChanged(string name, bool status)
-        {
-            var iodc = _ioDeviceContexts.FirstOrDefault(c => c.Device.Name == name);
-            if (iodc == null)
-                return;
-            if (status)
-            {
-                if (!iodc.IsStartedUpdatingDios)
-                    _ = iodc.StartUpdatingDios();
-            }
-            else
-            {
-                if (iodc.IsStartedUpdatingDios)
-                    await iodc.StopUpdatingDios();
-            }
         }
 
         /* Connection */
@@ -174,55 +156,56 @@ namespace SBC_2D.Infrastructures.Device
 
         public async Task StartUpdatingAllDios()
         {
-            var tasks = new List<Task>();
-            foreach (var iodc in _ioDeviceContexts)
-                tasks.Add(iodc.StartUpdatingDios());
-            await Task.WhenAll(tasks);
+            _ctsUpdatingDios = new CancellationTokenSource();
+            _updateDiosTask = Task.Run(async () =>
+            {
+                try
+                {
+                    var ioDevices = _devices.OfType<IIoDevice>().ToList();
+                    while (!_ctsUpdatingDios.Token.IsCancellationRequested)
+                    {
+                        var tasks = new List<Task>();
+                        foreach (var ioDevice in ioDevices)
+                        {
+                            tasks.Add(Task.Run(() =>
+                            {
+                                ioDevice.ReadAllDi(out bool[] dis);
+                                ioDevice.ReadAllDo(out bool[] dos);
+                            }));
+                        }
+                        await Task.WhenAll(tasks);
+                        await Task.Delay(100, _ctsUpdatingDios.Token);
+                    }
+                }
+                catch (OperationCanceledException) { }
+            });
         }
 
         public async Task StopUpdatingAllDios()
         {
-            var tasks = new List<Task>();
-            foreach (var iodc in _ioDeviceContexts)
-                tasks.Add(iodc.StopUpdatingDios());
-            await Task.WhenAll(tasks);
-        }
+            if (_ctsUpdatingDios == null)
+                return;
 
-        public bool ControlDo(int systemIndex, bool isOn)
-        {
-            int index = -1;
-            foreach (var iodc in _ioDeviceContexts)
+            //請求停止而已
+            _ctsUpdatingDios.Cancel();
+
+            //還是要等待task完成最後一次
+            try
             {
-                if (iodc.TryToDeviceDo(systemIndex, out index))
-                {
-                    iodc.Device.WriteDo(index, isOn);
-                    return true;
-                }
+                if (_ctsUpdatingDios != null)
+                    await _updateDiosTask;
             }
-            return false;
-        }
-
-        public bool InverseDo(int systemIndex, out bool isOn)
-        {
-            isOn = false;
-            bool isInversed = false;
-            foreach (var iodc in _ioDeviceContexts)
+            catch (TaskCanceledException)
             {
-                if (iodc.TryToDeviceDo(systemIndex, out int index))
-                {
-                    isInversed = iodc.Device.InverseDo(index, out bool result);
-                    isOn = result;
-                    break;
-                }
+                // 忽略，代表正常停止
             }
-            return isInversed;
+            finally
+            {
+                _ctsUpdatingDios.Dispose();
+                _ctsUpdatingDios = null;
+                _updateDiosTask = null;
+            }
         }
 
-
-        public void Dispose()
-        {
-            _connectLimit?.Dispose();
-            _ctsPollingDevicesConnection?.Dispose();
-        }
     }
 }

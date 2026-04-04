@@ -2,6 +2,7 @@
 using SBC_2D.Infrastructures.Device;
 using SBC_2D.Infrastructures.Ini;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
@@ -10,15 +11,17 @@ public class Adam6052 : IIoDevice, IConnectableDevice, IDisposable
 {
     private AdamSocket _adamModbus;
     private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-    public event Action<string, bool> ConnectionChanged;
-
+    private readonly int[] _diAddress;
+    private readonly int[] _doAddress;
     public string Name { get; }
     public bool IsConnected { get; private set; }
     public int DiCount { get; } = 8;
     public int DoCount { get; } = 8;
-
-    private readonly int[] _diAddress;
-    private readonly int[] _doAddress;
+    public bool[] Dis { get; private set; }
+    public bool[] Dos { get; private set; }
+    public event Action<string, bool> ConnectionChanged;
+    public event Action<string, IReadOnlyCollection<bool>> DisUpdated;
+    public event Action<string, IReadOnlyCollection<bool>> DosUpdated;
 
     public Adam6052(string name)
     {
@@ -26,6 +29,8 @@ public class Adam6052 : IIoDevice, IConnectableDevice, IDisposable
         _adamModbus = new AdamSocket();
         _diAddress = Enumerable.Range(1, DiCount).ToArray();
         _doAddress = Enumerable.Range(17, DoCount).ToArray();
+        Dis = new bool[DiCount];
+        Dos = new bool[DoCount];
     }
 
 
@@ -35,16 +40,26 @@ public class Adam6052 : IIoDevice, IConnectableDevice, IDisposable
         try
         {
             SocketConfig cfg = config as SocketConfig;
+            if (cfg == null)
+                throw new ArgumentException($"{nameof(config)} is not {nameof(SocketConfig)}");
             _adamModbus?.Disconnect();
             _adamModbus = new AdamSocket();
             _adamModbus.SetTimeout(2000, 25, 25);
             IsConnected = _adamModbus.Connect(cfg.Address, ProtocolType.Tcp, cfg.Port);
             if (IsConnected)
                 _adamModbus.SetSocketOpt(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-            ConnectionChanged?.Invoke(Name, IsConnected);
             return IsConnected;
         }
-        finally { _lock.Release(); }
+        catch (Exception ex)
+        {
+            IsConnected = false;
+            return false;
+        }
+        finally
+        {
+            ConnectionChanged?.Invoke(Name, IsConnected);
+            _lock.Release();
+        }
     }
 
     public void Disconnect()
@@ -90,16 +105,52 @@ public class Adam6052 : IIoDevice, IConnectableDevice, IDisposable
     public bool ReadDi(int channel, out bool data)
     {
         data = false;
-        if (channel < 0 || channel >= DiCount) return false;
-        if (!IsConnected) return false;
-        return ReadByAddress(_diAddress[channel], out data);
+
+        if (channel < 0 || channel >= DiCount)
+            return false;
+
+        if (!IsConnected)
+            return false;
+
+        bool isSuccess = ReadByAddress(_diAddress[channel], out data);
+
+        if (!isSuccess)
+            return false;
+
+        if (Dis[channel] != data)
+        {
+            Dis[channel] = data;
+            DisUpdated?.Invoke(Name, new[] { data });
+        }
+
+        return true;
     }
 
     public bool ReadAllDi(out bool[] data)
     {
         data = Array.Empty<bool>();
-        if (!IsConnected) return false;
-        return ReadsByAddress(1, DiCount, out data);
+        if (!IsConnected) 
+            return false;
+
+        bool isSuccess = ReadsByAddress(1, DiCount, out data);
+        if (!isSuccess) 
+            return false;
+        bool hasChanged = false;
+        for (int i = 0; i < data.Length; i++)
+        {
+            if (Dis[i] != data[i])
+            {
+                hasChanged = true;
+                break;
+            }
+        }
+        if (hasChanged)
+        {
+            data.CopyTo(Dis, 0);
+            DisUpdated?.Invoke(Name, data);
+        }
+
+        return isSuccess;
     }
 
     public bool ReadDo(int channel, out bool data)
@@ -107,21 +158,53 @@ public class Adam6052 : IIoDevice, IConnectableDevice, IDisposable
         data = false;
         if (channel < 0 || channel >= DoCount) return false;
         if (!IsConnected) return false;
-        return ReadByAddress(_doAddress[channel], out data);
+
+        bool isSuccess = ReadByAddress(_doAddress[channel], out data);
+        if (isSuccess)
+        {
+            if (Dos[channel] != data)
+            {
+                Dos[channel] = data;
+                DosUpdated?.Invoke(Name, new[] { data });
+            }
+        }
+        return isSuccess;
     }
 
     public bool ReadAllDo(out bool[] data)
     {
         data = Array.Empty<bool>();
         if (!IsConnected) return false;
-        return ReadsByAddress(17, DoCount, out data);
+        bool isSuccess = ReadsByAddress(17, DoCount, out data);
+        if (!isSuccess) return false;
+        bool hasChanged = false;
+        for (int i = 0; i < data.Length; i++)
+        {
+            if (Dos[i] != data[i])
+            {
+                hasChanged = true;
+                break;
+            }
+        }
+        if (hasChanged)
+        {
+            data.CopyTo(Dos, 0);
+            DosUpdated?.Invoke(Name, data);
+        }
+        return isSuccess;
     }
 
     public bool WriteDo(int channel, bool data)
     {
         if (channel < 0 || channel >= DoCount) return false;
         if (!IsConnected) return false;
-        return WriteByAddress(_doAddress[channel], data);
+        bool isSuccess = WriteByAddress(_doAddress[channel], data);
+        if (isSuccess)
+        {
+            Dos[channel] = data;
+            DosUpdated?.Invoke(Name, Dos);
+        }
+        return isSuccess;
     }
 
     public bool InverseDo(int channel, out bool result)

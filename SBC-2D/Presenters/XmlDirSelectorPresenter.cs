@@ -1,5 +1,4 @@
 ﻿using SBC_2D.Domain.Servicies;
-using SBC_2D.Events;
 using SBC_2D.Shared;
 using SBC_2D.Views.Interfaces;
 using System;
@@ -15,14 +14,12 @@ namespace SBC_2D.Presenters
     public class XmlDirSelectorPresenter : IDisposable
     {
         private readonly IXmlDirSelectorView _view;
-        private readonly IEventBus _eventBus;
         private string _dirPath = string.Empty;
         private string _insertType = "A";
 
-        public XmlDirSelectorPresenter(IXmlDirSelectorView view, IEventBus eventBus)
+        public XmlDirSelectorPresenter(IXmlDirSelectorView view)
         {
             _view = view;
-            _eventBus = eventBus;
             _view.InitializeRequested += View_LoadXmlDirRequested;
             _view.ChangeDirRequested += View_ChangeDirRequested;
         }

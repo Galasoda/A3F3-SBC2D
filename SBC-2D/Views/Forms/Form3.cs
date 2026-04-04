@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace SBC_2D.Views
 {
-    public partial class Form3 : Form, IForm3View
+    public partial class Form3 : Form, IHardwarePageView
     {
         private readonly List<IDeviceConnectionView> _deviceConnectionViews;
         private readonly List<IIoView> _inputViews;
@@ -41,6 +41,11 @@ namespace SBC_2D.Views
             flowLayoutPanelDis.Controls.Add(control);
             _inputViews.Add(control);
             return control;
+        }
+
+        public void ClearDeviceConnectionView()
+        {
+            _deviceConnectionViews.Clear();
         }
 
         public IOutView AddOutputView(int number)

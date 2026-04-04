@@ -16,10 +16,11 @@ PORT = 2
 
 [LaserDisplacementSensor]
 TYPE = DLEN1
+IP = 127.0.0.1
 PORT = 64000
 
 [Production]
-RecipeName = 123TEST
+RecipeName = Test
 Delay_BoardStopAck = 1000
 Timeout_WaitStopper = 5000
 Timeout_WaitInPlace = 10000

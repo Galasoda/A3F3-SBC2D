@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace SBC_2D.Views.Interfaces
 {
-    public interface IForm3View
+    public interface IHardwarePageView
     {
         IReadOnlyList<IDeviceConnectionView> DeviceConnectionViews { get; }
         IReadOnlyList<IIoView> InputViews { get; }
         IReadOnlyList<IIoView> OutputViews { get; }
         IDeviceConnectionView AddDeviceConnectionView();
+        void  ClearDeviceConnectionView();
         IIoView AddInputView(int number);
         IOutView AddOutputView(int number);
         void ClearInputView();

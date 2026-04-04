@@ -1,17 +1,18 @@
 ﻿using Dapper.FluentMap;
 using SBC_2D.Domain.Servicies;
-using SBC_2D.Events;
+using SBC_2D.Infrastructures;
 using SBC_2D.Infrastructures.Device;
 using SBC_2D.Infrastructures.Ini;
-using SBC_2D.Infrastructures.Recipe;
 using SBC_2D.Infrastructures.User;
 using SBC_2D.Presenters;
 using SBC_2D.Servicies;
+using SBC_2D.Shared;
 using SBC_2D.Views;
 using SBC_2D.Views.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SBC_2D
@@ -25,7 +26,7 @@ namespace SBC_2D
 
         [STAThread]
 
-        static void Main()
+        static async Task Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -48,23 +49,41 @@ namespace SBC_2D
 
             DeviceManager deviceManager = new DeviceManager();
             deviceManager.Initialize(iniStore.Setup.DeviceConfig);
-
+            ErrorManager errorManager = new ErrorManager();
+            Machine machine = new Machine(deviceManager, errorManager, iniStore.Setup);
+            machine.Initialize();
             Form1 form1 = new Form1();
             Form2 form2 = new Form2();
             Form3 form3 = new Form3();
             Form4 form4 = new Form4();
-            FormMain formMain = new FormMain(form1, form2 , form3, form4);
-            PresenterEventBus presenterEventBus = new PresenterEventBus();
-            UserPresenter userPresenter = new UserPresenter(form4, userService, presenterEventBus);
-            XmlDirSelectorPresenter xmlDirSelectorPresenter = new XmlDirSelectorPresenter(form4, presenterEventBus);
-            RecipePresenter recipePresenter = new RecipePresenter(recipeService, form2, presenterEventBus);
-            DevicePresenter devicePresenter = new DevicePresenter(form3, deviceManager);
-            //FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, devicePresenter, recipePresenter, userPresenter, presenterEventBus);
-            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain, presenterEventBus);
-            userPresenter.Initialize();
-            recipePresenter.Initialize();
-            devicePresenter.Initialize();
-            _ = devicePresenter.ConnectAllAsync();
+            FormMain formMain = new FormMain(form1, form2, form3, form4);
+            HomePagePresenter homePagePresenter = new HomePagePresenter(form1, machine);
+            UserPresenter userPresenter = new UserPresenter(form4, userService);
+            XmlDirSelectorPresenter xmlDirSelectorPresenter = new XmlDirSelectorPresenter(form4);
+            RecipePresenter recipePresenter = new RecipePresenter(recipeService, form2);
+            DevicePresenter devicePresenter = new DevicePresenter(form3, deviceManager, machine.SystemIo);
+            FormMainPresenter formMainPresenter = new FormMainPresenter(formMain);
+            machine.OnStatusChanged += (status) =>
+            {
+                formMain.SetMachineStatus(status.ToString());
+            };
+            userPresenter.UserChanged += (role, id) =>
+            {
+                formMain.SetUserRole(role.ToString());
+            };
+            recipePresenter.OnRecipeChanged += (recipe) =>
+            {
+                machine.WorkRecipe = recipe;
+                formMain.SetRecipeName(recipe.Name);
+            };
+            formMain.AppStarted += () =>
+            {
+                userPresenter.Initialize();
+                recipePresenter.Initialize();
+                devicePresenter.Initialize();
+                homePagePresenter.Initialize();
+                _ = deviceManager.ConnectAllAsync();
+            };
             Application.Run(formMain);
         }
     }

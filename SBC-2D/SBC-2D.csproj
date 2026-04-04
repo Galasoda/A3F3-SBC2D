@@ -205,37 +205,42 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\Servicies\ErrorService.cs" />
     <Compile Include="Domain\Servicies\RecipeService.cs" />
     <Compile Include="Domain\Servicies\UserService.cs" />
-    <Compile Include="Events\IEventBus.cs" />
-    <Compile Include="Events\PresenterEventBus.cs" />
+    <Compile Include="Infrastructures\AutoRunContext.cs" />
+    <Compile Include="Infrastructures\Bsk\BskHelper.cs" />
     <Compile Include="Infrastructures\Device\DeviceNames.cs" />
+    <Compile Include="Infrastructures\Device\Dlen1.cs" />
     <Compile Include="Infrastructures\Device\IBarcodeReaderDevice.cs" />
     <Compile Include="Infrastructures\Device\IConnectableDevice.cs" />
     <Compile Include="Infrastructures\Device\IConnectionConfig.cs" />
+    <Compile Include="Infrastructures\Error.cs" />
+    <Compile Include="Infrastructures\IAutoRunStep.cs" />
     <Compile Include="Infrastructures\Ini\Setup.cs" />
     <Compile Include="Domain\Servicies\IniService.cs" />
     <Compile Include="Infrastructures\Device\DeviceFactory.cs" />
     <Compile Include="Infrastructures\Device\DeviceManager.cs" />
-    <Compile Include="Infrastructures\Device\IoState.cs" />
     <Compile Include="Infrastructures\Device\KeyenceBarcodeReader.cs" />
     <Compile Include="Infrastructures\Ini\IniStore.cs" />
-    <Compile Include="Infrastructures\Device\IoDeviceContext.cs" />
     <Compile Include="Infrastructures\Device\Adam6052.cs" />
-    <Compile Include="Infrastructures\Device\DevicesStore.cs" />
     <Compile Include="Infrastructures\Device\IDevice.cs" />
     <Compile Include="Infrastructures\Device\IIoDevice.cs" />
     <Compile Include="Infrastructures\Device\SocketConfig.cs" />
+    <Compile Include="Infrastructures\LockMachine\objs.cs" />
+    <Compile Include="Infrastructures\Machine.cs" />
     <Compile Include="Infrastructures\Recipe\Recipe.cs" />
     <Compile Include="Infrastructures\Recipe\RecipeDao.cs" />
     <Compile Include="Infrastructures\Recipe\RecipeMap.cs" />
+    <Compile Include="Infrastructures\Step.cs" />
+    <Compile Include="Infrastructures\SystemIo.cs" />
+    <Compile Include="Infrastructures\SystemIoNames.cs" />
     <Compile Include="Infrastructures\User\User.cs" />
     <Compile Include="Infrastructures\User\UserDao.cs" />
     <Compile Include="Infrastructures\User\UserMap.cs" />
     <Compile Include="Presenters\DeviceConnectionPresenter.cs" />
     <Compile Include="Presenters\DevicePresenter.cs" />
     <Compile Include="Presenters\FormMainPresenter.cs" />
+    <Compile Include="Presenters\HomePagePresenter.cs" />
     <Compile Include="Presenters\RecipePresenter.cs" />
     <Compile Include="Presenters\UserPresenter.cs" />
     <Compile Include="Presenters\XmlDirSelectorPresenter.cs" />
@@ -269,10 +274,12 @@
       <DependentUpon>FormZeroing.cs</DependentUpon>
     </Compile>
     <Compile Include="Views\Interfaces\IDeviceConnectionView.cs" />
+    <Compile Include="Views\Interfaces\IHomePageView.cs" />
+    <Compile Include="Views\Interfaces\IMachineDiagramView.cs" />
     <Compile Include="Views\Interfaces\IXmlDirSelectorView.cs" />
     <Compile Include="Views\Interfaces\IFormMainView.cs" />
     <Compile Include="Views\Interfaces\IOutView.cs" />
-    <Compile Include="Views\Interfaces\IForm3View.cs" />
+    <Compile Include="Views\Interfaces\IHardwarePageView.cs" />
     <Compile Include="Views\Interfaces\IIoView.cs" />
     <Compile Include="Views\Interfaces\IRecipeView.cs" />
     <Compile Include="Views\Interfaces\IUserLoginView.cs" />

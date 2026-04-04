@@ -1,5 +1,4 @@
 ﻿using SBC_2D.Infrastructures;
-using SBC_2D.Infrastructures.Recipe;
 using SBC_2D.Presenters;
 using SBC_2D.Servicies;
 using SBC_2D.Shared;
@@ -79,6 +78,12 @@ namespace SBC_2D.Views
             ResumeLayout();
 
             buttonSwitchEditOrView.Text = isEditing ? "V" : "E";
+        }
+
+        public void EnableEditMode(bool isEnable)
+        {
+            buttonSwitchEditOrView.Enabled = isEnable;
+            SetEditMode(isEnable);
         }
 
         public void SetSelectedName(string name)

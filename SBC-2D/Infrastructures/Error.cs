@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SBC_2D.Infrastructures
+{
+    public class Error
+    {
+        public string Message { get; }
+        public DateTime Timestamp { get; }
+
+        public Error(string message)
+        {
+            Message = message;
+            Timestamp = DateTime.Now;
+        }
+    }
+}

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SBC_2D.Domain.Servicies
+namespace SBC_2D.Infrastructures
 {
-    class ErrorService
+    public class Step
     {
     }
 }

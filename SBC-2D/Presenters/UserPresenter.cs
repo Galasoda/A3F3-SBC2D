@@ -1,6 +1,6 @@
 ﻿using SBC_2D.Domain.Servicies;
-using SBC_2D.Events;
 using SBC_2D.Infrastructures.User;
+using SBC_2D.Shared;
 using SBC_2D.Views.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -19,12 +19,11 @@ namespace SBC_2D.Presenters
         private User _user;
         private string _newPw;
         private bool _isOnChangePw;
-        private IEventBus _eventBus;
+        public event Action<Role, string> UserChanged;
 
 
-        public UserPresenter(IUserLoginView userLoginView, UserService userService, IEventBus eventBus)
+        public UserPresenter(IUserLoginView userLoginView, UserService userService)
         {
-            _eventBus = eventBus;
             _userLoginView = userLoginView;
             _userService = userService;
             _user = new User();
@@ -80,7 +79,7 @@ namespace SBC_2D.Presenters
             {
                 if (Login(out message))
                 {
-                    _eventBus.Publish<(Role, string)>(((Role)_user.Role, _user.Id));
+                    UserChanged?.Invoke((Role)_user.Role, _user.Id);
                     _userLoginView.ClearEnterInfos();
                 }
                 _userLoginView.ShowLogedMessage(message);
@@ -117,7 +116,7 @@ namespace SBC_2D.Presenters
             {
                 _user.Pw = string.Empty;
                 _userLoginView.ClearEnterInfos();
-                _eventBus.Publish<(Role, string)>(((Role)_user.Role, _user.Id));
+                UserChanged?.Invoke((Role)_user.Role, _user.Id);
             }
             return isLoged;
         }

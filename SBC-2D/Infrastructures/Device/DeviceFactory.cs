@@ -19,7 +19,7 @@ namespace SBC_2D.Infrastructures.Device
                 { DeviceNames.IoModule2, () => new Adam6052(DeviceNames.IoModule2) },
                 { DeviceNames.UpperBarcodeReader, () => new KeyenceBarcodeReader(DeviceNames.UpperBarcodeReader) },
                 { DeviceNames.LowerBarcodeReader, () => new KeyenceBarcodeReader(DeviceNames.LowerBarcodeReader) },
-                { DeviceNames.LaserDisplacementSensor, () => new KeyenceBarcodeReader(DeviceNames.LaserDisplacementSensor) },
+                { DeviceNames.LaserDisplacementSensor, () => new Dlen1(DeviceNames.LaserDisplacementSensor) },
             };
         }
 
@@ -42,25 +42,23 @@ namespace SBC_2D.Infrastructures.Device
             return devices;
         }
 
-        public static List<IoDeviceContext> CreateIoDeviceContexts(IEnumerable<IIoDevice> ioDevices)
-        {
-            List<IoDeviceContext> ioDeviceContext = new List<IoDeviceContext>();
-            int systemDiIndex = 0;
-            int systemDoIndex = 0;
-            foreach (IIoDevice device in ioDevices)
-            {
-                IoState ioState = new IoState(device.DiCount, device.DoCount);
-                IoDeviceContext ioInstance = new IoDeviceContext(
-                    device,
-                    systemDiIndex,
-                    systemDoIndex,
-                    ioState
-                );
-                systemDiIndex += device.DiCount;
-                systemDoIndex += device.DoCount;
-                ioDeviceContext.Add(ioInstance);
-            }
-            return ioDeviceContext;
-        }
+        //public static List<IoDeviceContext> CreateIoDeviceContexts(IEnumerable<IIoDevice> ioDevices)
+        //{
+        //    List<IoDeviceContext> ioDeviceContext = new List<IoDeviceContext>();
+        //    int systemDiIndex = 0;
+        //    int systemDoIndex = 0;
+        //    foreach (IIoDevice device in ioDevices)
+        //    {
+        //        IoDeviceContext ioInstance = new IoDeviceContext(
+        //            device,
+        //            systemDiIndex,
+        //            systemDoIndex
+        //        );
+        //        systemDiIndex += device.DiCount;
+        //        systemDoIndex += device.DoCount;
+        //        ioDeviceContext.Add(ioInstance);
+        //    }
+        //    return ioDeviceContext;
+        //}
     }
 }

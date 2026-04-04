@@ -8,7 +8,7 @@ namespace SBC_2D.Views.Interfaces
 {
     public interface IFormMainView
     {
-        event EventHandler AppStarted;
+        event Action AppStarted;
         void SetRecipeName(string modelName);
         void SetVersion(string version);
         void SetMachineStatus(string status);

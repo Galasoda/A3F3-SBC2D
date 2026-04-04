@@ -218,7 +218,7 @@
             this.groupBoxUserLogin.Font = new System.Drawing.Font("微軟正黑體", 9.75F);
             this.groupBoxUserLogin.Location = new System.Drawing.Point(8, 6);
             this.groupBoxUserLogin.Name = "groupBoxUserLogin";
-            this.groupBoxUserLogin.Size = new System.Drawing.Size(345, 332);
+            this.groupBoxUserLogin.Size = new System.Drawing.Size(345, 326);
             this.groupBoxUserLogin.TabIndex = 11011;
             this.groupBoxUserLogin.TabStop = false;
             this.groupBoxUserLogin.Text = "使用者";
@@ -345,7 +345,7 @@
             this.richTextBoxLogedMessage.Location = new System.Drawing.Point(8, 253);
             this.richTextBoxLogedMessage.Name = "richTextBoxLogedMessage";
             this.richTextBoxLogedMessage.ReadOnly = true;
-            this.richTextBoxLogedMessage.Size = new System.Drawing.Size(331, 74);
+            this.richTextBoxLogedMessage.Size = new System.Drawing.Size(331, 68);
             this.richTextBoxLogedMessage.TabIndex = 11008;
             this.richTextBoxLogedMessage.Text = "";
             // 

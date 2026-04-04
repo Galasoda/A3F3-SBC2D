@@ -76,6 +76,7 @@
             this.buttonStop.TabIndex = 11022;
             this.buttonStop.Text = "結束自動";
             this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
             // buttonAutoRun
             // 
@@ -89,6 +90,7 @@
             this.buttonAutoRun.TabIndex = 11023;
             this.buttonAutoRun.Text = "開始自動";
             this.buttonAutoRun.UseVisualStyleBackColor = true;
+            this.buttonAutoRun.Click += new System.EventHandler(this.buttonAutoRun_Click);
             // 
             // groupBox4
             // 
@@ -101,7 +103,6 @@
             this.groupBox4.TabIndex = 11028;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "當前訊息";
-            this.groupBox4.Enter += new System.EventHandler(this.groupBox4_Enter);
             // 
             // listBoxMessage
             // 
@@ -119,7 +120,7 @@
             // 
             // label5
             // 
-            this.label5.BackColor = System.Drawing.Color.White;
+            this.label5.BackColor = System.Drawing.SystemColors.Control;
             this.label5.Font = new System.Drawing.Font("新細明體", 12F);
             this.label5.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.label5.Location = new System.Drawing.Point(496, 8);
@@ -133,7 +134,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.BackColor = System.Drawing.Color.White;
+            this.label6.BackColor = System.Drawing.SystemColors.Control;
             this.label6.Font = new System.Drawing.Font("新細明體", 12F);
             this.label6.ImeMode = System.Windows.Forms.ImeMode.NoControl;
             this.label6.Location = new System.Drawing.Point(576, 8);
@@ -153,7 +154,6 @@
             this.machineDiagramControl1.Name = "machineDiagramControl1";
             this.machineDiagramControl1.Size = new System.Drawing.Size(523, 506);
             this.machineDiagramControl1.TabIndex = 11029;
-            this.machineDiagramControl1.Load += new System.EventHandler(this.machineDiagramControl1_Load);
             // 
             // Form1
             // 

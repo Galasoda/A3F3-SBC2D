@@ -30,9 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MachineDiagramControl));
             this.panelDiagram = new System.Windows.Forms.Panel();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.labelNxtReady = new System.Windows.Forms.Label();
             this.panelRetryBarcode = new System.Windows.Forms.Panel();
-            this.buttonPassBoard = new System.Windows.Forms.Button();
+            this.buttonPassAll = new System.Windows.Forms.Button();
             this.buttonReadBarcode = new System.Windows.Forms.Button();
             this.labelNxtLink = new System.Windows.Forms.Label();
             this.labelUpperStpSensor = new System.Windows.Forms.Label();
@@ -41,7 +42,7 @@
             this.labelCvLink = new System.Windows.Forms.Label();
             this.labelLowerStpSensor = new System.Windows.Forms.Label();
             this.labelEmo = new System.Windows.Forms.Label();
-            this.labelThicknessValue = new System.Windows.Forms.Label();
+            this.labelThickness = new System.Windows.Forms.Label();
             this.labelSafetyDoorSensor = new System.Windows.Forms.Label();
             this.label23 = new System.Windows.Forms.Label();
             this.panel6 = new System.Windows.Forms.Panel();
@@ -49,7 +50,6 @@
             this.panelEntrySensor = new System.Windows.Forms.Panel();
             this.panelBoardLengthSensor = new System.Windows.Forms.Panel();
             this.panelInPlaceSensor = new System.Windows.Forms.Panel();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -57,10 +57,10 @@
             this.richTextBoxBarcode_2 = new System.Windows.Forms.RichTextBox();
             this.richTextBoxBarcode_1 = new System.Windows.Forms.RichTextBox();
             this.panelDiagram.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panelRetryBarcode.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxUpStrmCv)).BeginInit();
             this.panel6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // panelDiagram
@@ -75,7 +75,7 @@
             this.panelDiagram.Controls.Add(this.labelCvLink);
             this.panelDiagram.Controls.Add(this.labelLowerStpSensor);
             this.panelDiagram.Controls.Add(this.labelEmo);
-            this.panelDiagram.Controls.Add(this.labelThicknessValue);
+            this.panelDiagram.Controls.Add(this.labelThickness);
             this.panelDiagram.Controls.Add(this.labelSafetyDoorSensor);
             this.panelDiagram.Controls.Add(this.label23);
             this.panelDiagram.Controls.Add(this.panel6);
@@ -84,6 +84,17 @@
             this.panelDiagram.Name = "panelDiagram";
             this.panelDiagram.Size = new System.Drawing.Size(514, 256);
             this.panelDiagram.TabIndex = 11026;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.pictureBox1.Location = new System.Drawing.Point(466, 61);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(39, 33);
+            this.pictureBox1.TabIndex = 11025;
+            this.pictureBox1.TabStop = false;
             // 
             // labelNxtReady
             // 
@@ -104,24 +115,24 @@
             // 
             this.panelRetryBarcode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.panelRetryBarcode.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            this.panelRetryBarcode.Controls.Add(this.buttonPassBoard);
+            this.panelRetryBarcode.Controls.Add(this.buttonPassAll);
             this.panelRetryBarcode.Controls.Add(this.buttonReadBarcode);
             this.panelRetryBarcode.Location = new System.Drawing.Point(5, 182);
             this.panelRetryBarcode.Name = "panelRetryBarcode";
             this.panelRetryBarcode.Size = new System.Drawing.Size(309, 69);
             this.panelRetryBarcode.TabIndex = 11018;
             // 
-            // buttonPassBoard
+            // buttonPassAll
             // 
-            this.buttonPassBoard.Font = new System.Drawing.Font("新細明體", 9.75F);
-            this.buttonPassBoard.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.buttonPassBoard.Location = new System.Drawing.Point(194, 6);
-            this.buttonPassBoard.Margin = new System.Windows.Forms.Padding(4);
-            this.buttonPassBoard.Name = "buttonPassBoard";
-            this.buttonPassBoard.Size = new System.Drawing.Size(111, 59);
-            this.buttonPassBoard.TabIndex = 11003;
-            this.buttonPassBoard.Text = "全部置件";
-            this.buttonPassBoard.UseVisualStyleBackColor = true;
+            this.buttonPassAll.Font = new System.Drawing.Font("新細明體", 9.75F);
+            this.buttonPassAll.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.buttonPassAll.Location = new System.Drawing.Point(194, 6);
+            this.buttonPassAll.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonPassAll.Name = "buttonPassAll";
+            this.buttonPassAll.Size = new System.Drawing.Size(111, 59);
+            this.buttonPassAll.TabIndex = 11003;
+            this.buttonPassAll.Text = "全部置件";
+            this.buttonPassAll.UseVisualStyleBackColor = true;
             // 
             // buttonReadBarcode
             // 
@@ -234,20 +245,20 @@
             this.labelEmo.Text = "EMO";
             this.labelEmo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // labelThicknessValue
+            // labelThickness
             // 
-            this.labelThicknessValue.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.labelThicknessValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
-            this.labelThicknessValue.ForeColor = System.Drawing.Color.Black;
-            this.labelThicknessValue.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.labelThicknessValue.Location = new System.Drawing.Point(151, 10);
-            this.labelThicknessValue.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.labelThicknessValue.Name = "labelThicknessValue";
-            this.labelThicknessValue.Size = new System.Drawing.Size(176, 35);
-            this.labelThicknessValue.TabIndex = 10969;
-            this.labelThicknessValue.Tag = "9";
-            this.labelThicknessValue.Text = "0.00 mm";
-            this.labelThicknessValue.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.labelThickness.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.labelThickness.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
+            this.labelThickness.ForeColor = System.Drawing.Color.Black;
+            this.labelThickness.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.labelThickness.Location = new System.Drawing.Point(151, 10);
+            this.labelThickness.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.labelThickness.Name = "labelThickness";
+            this.labelThickness.Size = new System.Drawing.Size(176, 35);
+            this.labelThickness.TabIndex = 10969;
+            this.labelThickness.Tag = "9";
+            this.labelThickness.Text = "0.00 mm";
+            this.labelThickness.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // labelSafetyDoorSensor
             // 
@@ -345,17 +356,6 @@
             this.panelInPlaceSensor.TabIndex = 10951;
             this.panelInPlaceSensor.Tag = "2";
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.pictureBox1.Location = new System.Drawing.Point(466, 61);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(39, 33);
-            this.pictureBox1.TabIndex = 11025;
-            this.pictureBox1.TabStop = false;
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -445,10 +445,10 @@
             this.Name = "MachineDiagramControl";
             this.Size = new System.Drawing.Size(521, 504);
             this.panelDiagram.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panelRetryBarcode.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxUpStrmCv)).EndInit();
             this.panel6.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -459,7 +459,7 @@
         private System.Windows.Forms.Panel panelDiagram;
         internal System.Windows.Forms.Label labelNxtReady;
         private System.Windows.Forms.Panel panelRetryBarcode;
-        private System.Windows.Forms.Button buttonPassBoard;
+        private System.Windows.Forms.Button buttonPassAll;
         private System.Windows.Forms.Button buttonReadBarcode;
         internal System.Windows.Forms.Label labelNxtLink;
         private System.Windows.Forms.Label labelUpperStpSensor;
@@ -468,7 +468,7 @@
         internal System.Windows.Forms.Label labelCvLink;
         private System.Windows.Forms.Label labelLowerStpSensor;
         internal System.Windows.Forms.Label labelEmo;
-        internal System.Windows.Forms.Label labelThicknessValue;
+        internal System.Windows.Forms.Label labelThickness;
         internal System.Windows.Forms.Label labelSafetyDoorSensor;
         private System.Windows.Forms.Label label23;
         internal System.Windows.Forms.Panel panel6;

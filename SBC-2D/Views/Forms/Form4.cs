@@ -154,6 +154,5 @@ namespace SBC_2D.Views.Forms
             if (InvokeRequired) Invoke(action);
             else action();
         }
-
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Dapper.FluentMap.Mapping;
 using SBC_2D.Domain.Servicies;
-using SBC_2D.Events;
-using SBC_2D.Infrastructures.Recipe;
 using SBC_2D.Servicies;
 using SBC_2D.Shared;
 using SBC_2D.Views;
@@ -31,17 +29,17 @@ namespace SBC_2D.Presenters
         private string _selectedName = "";
         private RecipeManageViewMode _recipeManageViewMode;
         private readonly Dictionary<string, PropertyInfo> _propertyCache;
-        private IEventBus _eventBus;
+        public event Action<Recipe> OnRecipeChanged;
 
-        public RecipePresenter(RecipeService recipeService, IRecipeView recipeView, IEventBus eventBus)
+        public RecipePresenter(RecipeService recipeService, IRecipeView recipeView)
         {
-            _eventBus = eventBus;
             _recipeService = recipeService;
             _recipeView = recipeView;
             _editedRecipe = new Recipe();
             _currentRecipe = new Recipe();
             _propertyCache = typeof(Recipe).GetProperties().ToDictionary(p => p.Name);
             _allRecipeNames = new List<string>();
+            //AppEvent.UserChanged += UserChanged_EnableEditMode;
             _recipeView.ToggleEditModeRequested += RecipeView_ToggleEditMode;
             _recipeView.ActionRequested += RecipeView_ActionRequested;
             _recipeView.ActionConfirmed += RecipeView_ActionConfirmed;
@@ -63,6 +61,7 @@ namespace SBC_2D.Presenters
 
         public void Dispose()
         {
+            //AppEvent.UserChanged -= UserChanged_EnableEditMode;
             _recipeView.ToggleEditModeRequested -= RecipeView_ToggleEditMode;
             _recipeView.ActionRequested -= RecipeView_ActionRequested;
             _recipeView.ActionConfirmed -= RecipeView_ActionConfirmed;
@@ -304,6 +303,12 @@ namespace SBC_2D.Presenters
             }
         }
 
+        private void UserChanged_EnableEditMode(Role role, string id)
+        {
+            bool isEnabledEditMode = role != Role.Operater;
+            _recipeView.EnableEditMode(isEnabledEditMode);
+        }
+
         private void ChangeRecipe(Recipe recipe)
         {
             _currentRecipe = recipe.DeepClone();
@@ -313,7 +318,7 @@ namespace SBC_2D.Presenters
             _isOnEdit = false;
             _recipeView.SetEditMode(false);
             IniService.SaveCurrentRecipeName(_currentRecipe.Name);
-            _eventBus.Publish(recipe);
+            OnRecipeChanged?.Invoke(_currentRecipe);
         }
 
         public void RequestAction(RecipeManageViewMode action)

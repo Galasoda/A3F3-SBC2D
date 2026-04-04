@@ -1,5 +1,4 @@
-﻿using SBC_2D.Infrastructures.Recipe;
-using SBC_2D.Shared;
+﻿using SBC_2D.Shared;
 using SBC_2D.Views.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -31,6 +30,7 @@ namespace SBC_2D.Views
         void ShowRecipeNames(IEnumerable<string> names);
         void ShowRecipe(Recipe recipe);
         void SetEditMode(bool isEditing);
+        void EnableEditMode(bool isEnable);
         void SetSelectedName(string name);
         void SetViewMode(RecipeManageViewMode action);
         void ShowHintForSave(bool isEnable);

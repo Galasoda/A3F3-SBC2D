@@ -17,7 +17,7 @@ namespace SBC_2D.Views
         private Form2 _form2;
         private Form3 _form3;
         private Form4 _form4;
-        public event EventHandler AppStarted;
+        public event Action AppStarted;
 
         public FormMain(Form1 form1, Form2 form2, Form3 form3, Form4 form4)
         {
@@ -36,6 +36,9 @@ namespace SBC_2D.Views
             AppTheme.ApplyTopbar(panelTopbar);
             AppTheme.ApplyBottombar(panelBottombar);
         }
+
+        private void FormMain_Load(object sender, EventArgs e)
+            => AppStarted?.Invoke();
 
         private void ButtonSwitchPage_Click(object sender, EventArgs e)
         {
