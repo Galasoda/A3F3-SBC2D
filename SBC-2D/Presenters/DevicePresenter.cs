@@ -34,6 +34,28 @@ namespace SBC_2D.Presenters
 
         public void Dispose()
         {
+            foreach (var p in _deviceConnectionPresenters)
+            {
+                try { p.Dispose(); } catch { }
+            }
+            _deviceConnectionPresenters.Clear();
+
+            if (_systemIo != null)
+            {
+                try { _systemIo.SystemDisUpdated -= SystemDisUpdated; } catch { }
+                try { _systemIo.SystemDosUpdated -= SystemDosUpdated; } catch { }
+            }
+
+            foreach (var kvp in _doViewMap)
+            {
+                if (kvp.Value is IOutView outView)
+                {
+                    try { outView.OutputClicked -= View_OutputClicked; } catch { }
+                }
+            }
+
+            _diViewMap.Clear();
+            _doViewMap.Clear();
         }
 
         //建議還是要分deviceConnectionlistview、iolistview

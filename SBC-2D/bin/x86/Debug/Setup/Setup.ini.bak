@@ -20,7 +20,7 @@ IP = 127.0.0.1
 PORT = 64000
 
 [Production]
-RecipeName = Test
+RecipeName = 123TEST
 Delay_BoardStopAck = 1000
 Timeout_WaitStopper = 5000
 Timeout_WaitInPlace = 10000

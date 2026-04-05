@@ -16,7 +16,7 @@ namespace SBC_2D.Views
         private readonly List<IIoView> _outputViews;
         public IReadOnlyList<IDeviceConnectionView> DeviceConnectionViews { get => _deviceConnectionViews; }
         public IReadOnlyList<IIoView> InputViews { get => _inputViews; }
-        public IReadOnlyList<IIoView> OutputViews { get => OutputViews; }
+        public IReadOnlyList<IIoView> OutputViews { get => _outputViews; }
 
         public Form3()
         {
@@ -35,17 +35,18 @@ namespace SBC_2D.Views
             return control;
         }
 
+        public void ClearDeviceConnectionView()
+        {
+            flowLayoutPanelDeviceConnections.Controls.Clear();
+            _deviceConnectionViews.Clear();
+        }
+
         public IIoView AddInputView(int number)
         {
             var control = new IoControl(false, number);
             flowLayoutPanelDis.Controls.Add(control);
             _inputViews.Add(control);
             return control;
-        }
-
-        public void ClearDeviceConnectionView()
-        {
-            _deviceConnectionViews.Clear();
         }
 
         public IOutView AddOutputView(int number)
@@ -58,11 +59,13 @@ namespace SBC_2D.Views
 
         public void ClearInputView()
         {
+            flowLayoutPanelDis.Controls.Clear();
             _inputViews.Clear();
         }
 
         public void ClearOutputView()
         {
+            flowLayoutPanelDos.Controls.Clear();
             _outputViews.Clear();
         }
     }

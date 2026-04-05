@@ -9,7 +9,7 @@ namespace SBC_2D.Infrastructures
 {
     public interface IAutoRunStep
     {
-        Task<AutoRunStep> ExecuteAsync(AutoRunContext autoRun);
+        //Task<AutoRunStep> ExecuteAsync(AutoRunContext autoRun);
         string Name { get; }
     }
 }

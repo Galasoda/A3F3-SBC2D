@@ -9,8 +9,8 @@ public class SystemIo
     private readonly Dictionary<int, (IIoDevice Device, int Channel)> _diLookup;
     private readonly Dictionary<int, (IIoDevice Device, int Channel)> _doLookup;
     private readonly Dictionary<string, (int DiStart, int DoStart)> _deviceStartMap;
-    private readonly Dictionary<int, bool> _systemDis;
-    private readonly Dictionary<int, bool> _systemDos;
+    private Dictionary<int, bool> _systemDis;
+    private Dictionary<int, bool> _systemDos;
     public IReadOnlyDictionary<int, bool> SystemDis => _systemDis;
     public IReadOnlyDictionary<int, bool> SystemDos => _systemDos;
     public event Action<IReadOnlyDictionary<int, bool>> SystemDisUpdated;
@@ -24,6 +24,7 @@ public class SystemIo
         _systemDis = new Dictionary<int, bool>();
         _systemDos = new Dictionary<int, bool>();
 
+        //有重複就讓它建構失敗
         foreach (var (device, diStart, doStart) in devices)
         {
             _deviceStartMap[device.Name] = (diStart, doStart);
@@ -31,7 +32,7 @@ public class SystemIo
             for (int i = 0; i < device.DiCount; i++)
             {
                 _systemDis[diStart + i] = false;
-                _diLookup[diStart + i] = (device, i); 
+                _diLookup[diStart + i] = (device, i);
             }
             for (int i = 0; i < device.DoCount; i++)
             {
@@ -71,28 +72,28 @@ public class SystemIo
         return info.Device.InverseDo(info.Channel, out isOn);
     }
 
-    public bool TryToDeviceDi(int systemIndex, out int localIndex, out IIoDevice device)
+    public bool TryToDeviceDi(int systemIndex, out int channel, out IIoDevice device)
     {
-        if (_diLookup.TryGetValue(systemIndex, out var info))
+        if (_diLookup.TryGetValue(systemIndex, out var parms))
         {
-            localIndex = info.Channel;
-            device = info.Device;
+            channel = parms.Channel;
+            device = parms.Device;
             return true;
         }
-        localIndex = -1;
+        channel = -1;
         device = null;
         return false;
     }
 
-    public bool TryToDeviceDo(int systemIndex, out int localIndex, out IIoDevice device)
+    public bool TryToDeviceDo(int systemIndex, out int channel, out IIoDevice device)
     {
         if (_doLookup.TryGetValue(systemIndex, out var info))
         {
-            localIndex = info.Channel;
+            channel = info.Channel;
             device = info.Device;
             return true;
         }
-        localIndex = -1;
+        channel = -1;
         device = null;
         return false;
     }
@@ -118,18 +119,23 @@ public class SystemIo
         foreach (bool value in data)
         {
             int systemIndex = start + i++;
-            if (systemMap[systemIndex] == value) 
+            if (systemMap[systemIndex] == value)
                 continue;
             systemMap[systemIndex] = value;
             changedMap[systemIndex] = value;
         }
 
-        if (changedMap.Count == 0) 
+        if (changedMap.Count == 0)
             return;
 
-        if (isDi) 
+        if (isDi)
+            _systemDis = systemMap;
+        else
+            _systemDos = systemMap;
+
+        if (isDi)
             SystemDisUpdated?.Invoke(changedMap);
-        else 
+        else
             SystemDosUpdated?.Invoke(changedMap);
     }
 }

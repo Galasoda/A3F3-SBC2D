@@ -207,14 +207,14 @@
   <ItemGroup>
     <Compile Include="Domain\Servicies\RecipeService.cs" />
     <Compile Include="Domain\Servicies\UserService.cs" />
-    <Compile Include="Infrastructures\AutoRunContext.cs" />
     <Compile Include="Infrastructures\Bsk\BskHelper.cs" />
     <Compile Include="Infrastructures\Device\DeviceNames.cs" />
     <Compile Include="Infrastructures\Device\Dlen1.cs" />
     <Compile Include="Infrastructures\Device\IBarcodeReaderDevice.cs" />
     <Compile Include="Infrastructures\Device\IConnectableDevice.cs" />
     <Compile Include="Infrastructures\Device\IConnectionConfig.cs" />
-    <Compile Include="Infrastructures\Error.cs" />
+    <Compile Include="Infrastructures\Error\ErrorEntry.cs" />
+    <Compile Include="Infrastructures\Error\ErrorManager.cs" />
     <Compile Include="Infrastructures\IAutoRunStep.cs" />
     <Compile Include="Infrastructures\Ini\Setup.cs" />
     <Compile Include="Domain\Servicies\IniService.cs" />

@@ -39,7 +39,6 @@ namespace SBC_2D.Presenters
             _currentRecipe = new Recipe();
             _propertyCache = typeof(Recipe).GetProperties().ToDictionary(p => p.Name);
             _allRecipeNames = new List<string>();
-            //AppEvent.UserChanged += UserChanged_EnableEditMode;
             _recipeView.ToggleEditModeRequested += RecipeView_ToggleEditMode;
             _recipeView.ActionRequested += RecipeView_ActionRequested;
             _recipeView.ActionConfirmed += RecipeView_ActionConfirmed;
@@ -61,7 +60,6 @@ namespace SBC_2D.Presenters
 
         public void Dispose()
         {
-            //AppEvent.UserChanged -= UserChanged_EnableEditMode;
             _recipeView.ToggleEditModeRequested -= RecipeView_ToggleEditMode;
             _recipeView.ActionRequested -= RecipeView_ActionRequested;
             _recipeView.ActionConfirmed -= RecipeView_ActionConfirmed;

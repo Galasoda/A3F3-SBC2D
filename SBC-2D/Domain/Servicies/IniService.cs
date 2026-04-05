@@ -162,7 +162,7 @@ namespace SBC_2D.Domain.Servicies
                 config.RecipeName = name;
 
             if (!IniFile.TryGetValue(section, "Delay_BoardStopAck", "", _store.SetupFilePath, out string delayBoardStopAckStr) ||
-                !long.TryParse(delayBoardStopAckStr, out long delayBoardStopAck))
+                !int.TryParse(delayBoardStopAckStr, out int delayBoardStopAck))
                 bugInfo += "Invalid or missing Delay_BoardStopAck.\r\n";
             else
                 config.Delay_BoardStopAck = delayBoardStopAck;
