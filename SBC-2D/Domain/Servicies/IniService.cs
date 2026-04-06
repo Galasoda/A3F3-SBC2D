@@ -198,7 +198,7 @@ namespace SBC_2D.Domain.Servicies
                 config.Timeout_OnExit = timeoutOnExit;
 
             if (!IniFile.TryGetValue(section, "Timeout_MeasuThickness", "", _store.SetupFilePath, out string timeoutMeasuThicknessStr) ||
-                !long.TryParse(timeoutMeasuThicknessStr, out long timeoutMeasuThickness))
+                !int.TryParse(timeoutMeasuThicknessStr, out int timeoutMeasuThickness))
                 bugInfo += "Invalid or missing Timeout_MeasuThickness.\r\n";
             else
                 config.Timeout_MeasuThickness = timeoutMeasuThickness;

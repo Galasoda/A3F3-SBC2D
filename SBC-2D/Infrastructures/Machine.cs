@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,8 +26,7 @@ public class Machine
     public string BskNo { get; set; }
     public int Quantity { get; set; }
     public string BoardThickness { get; set; }
-    public string Barcode1 { get; set; }
-    public string Barcode2 { get; set; }
+    public string[] Barcodes { get; private set; }
     public int ExecutedBskResult { get; set; }
     public MachineStatus Status { get; private set; }
     public AutoRunStep CurrentStep { get; private set; }
@@ -33,6 +34,9 @@ public class Machine
 
     public event Action<MachineStatus> StatusChanged;
     public event Action<string> StepMessageChanged;
+    public event Action<double> ThicknessMeasured;
+    public event Action BarcodeRereadRequested;
+    public event Action<string[]> BarcodesReaded;
 
     public bool IsAutoRunning
     {
@@ -56,6 +60,7 @@ public class Machine
 
     public Task StartAutoRunAsync()
     {
+        //事前判斷Recipe
         if (IsAutoRunning)
             return Task.CompletedTask;
         _ctsAutoRun = new CancellationTokenSource();
@@ -115,6 +120,18 @@ public class Machine
                     case AutoRunStep.等待流板到位:
                     {
                         await WaitBoardInplace(token).ConfigureAwait(false);
+                        break;
+                    }
+
+                    case AutoRunStep.測量板子厚度:
+                    {
+                        await MeasureThickness(token).ConfigureAwait(false);
+                        break;
+                    }
+
+                    case AutoRunStep.讀取條碼:
+                    {
+                        await ScanBarcode(token).ConfigureAwait(false);
                         break;
                     }
 
@@ -332,7 +349,7 @@ public class Machine
                     ControlDo(2, false);
                     await Task.Delay(_setup.ProductionConfig.Delay_BoardStopAck, token);
                     //長度Sensor是檢查1Strip，而2Strip會使用載具(不用檢查)
-                    bool isBoardLengthNg = Recipe.PcbBlocksY == 1 && GetDi(9); 
+                    bool isBoardLengthNg = Recipe.PcbBlocksY == 1 && GetDi(9);
                     if (isBoardLengthNg)
                     {
                         ReportError(ErrorCode.板子長度NG, "可能發生疊板，請移除板子");
@@ -344,7 +361,7 @@ public class Machine
                         SetStepMessage("流板已到位，載板長度OK");
                         SetStepMessage("關閉停板訊號");
                         ControlDo(3, false);
-                        CurrentStep = AutoRunStep.測量薄板厚度;
+                        CurrentStep = AutoRunStep.測量板子厚度;
                         return;
                     }
                 }
@@ -353,55 +370,159 @@ public class Machine
         return;
     }
 
-    private async Task ScanBarcodeAsync(CancellationToken token)
+    private async Task MeasureThickness(CancellationToken token)
     {
-        // attempt to read from barcode reader devices present in DeviceManager
-        try
+        if (Recipe.IsLdsBypass)
         {
-            Barcode1 = null;
-            Barcode2 = null;
-
-            var barcodeDevices = _deviceManager?.Devices?.OfType<IBarcodeReaderDevice>().ToArray()
-                ?? Array.Empty<IBarcodeReaderDevice>();
-
-            if (!barcodeDevices.Any())
+            CurrentStep = AutoRunStep.讀取條碼;
+            return;
+        }
+        SetStepMessage("開始測量薄板厚度");
+        IDevice device = _deviceManager.Devices
+            .FirstOrDefault(d => d.Name == DeviceNames.LaserDisplacementSensor);
+        if (!(device is Dlen1 dlen1))
+        {
+            ReportError(ErrorCode.程式錯誤_型態不相符, $"{nameof(IDevice)}不等於{nameof(Dlen1)}");
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        var datas = dlen1.MS(_setup.ProductionConfig.Timeout_MeasuThickness);
+        if (!string.IsNullOrEmpty(datas.error))
+        {
+            ReportError(ErrorCode.板厚量測異常_收到錯誤代碼ER, datas.error);
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        //因為dlen1是網路模組，回傳兩個讀頭iL-S065的數值
+        if (datas.values.Count != 2)
+        {
+            ReportError(ErrorCode.板厚量測異常_回傳的讀頭數量不符, $"總數為{datas.values.Count} != 2");
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        var id0 = datas.values[0];
+        var id1 = datas.values[1];
+        for (int i = 0; i < datas.values.Count; i++)
+        {
+            var id = datas.values[i];
+            if (id.status == -1 || id.value == null)
             {
-                // no barcode reader available -> treat as OK but log
-                ReportError(ErrorCode.ES2, "未偵測到條碼讀取器");
-                await Task.Delay(50, token).ConfigureAwait(false);
-                return;
+                ReportError(
+                    ErrorCode.板厚量測異常_回傳數值無法解析,
+                    $"請程式人員檢查讀頭[{i}]的回傳資料"
+                );
+                CurrentStep = AutoRunStep.錯誤流程;
             }
-
-            // read available barcode devices sequentially (first -> Barcode1, second -> Barcode2)
-            for (int i = 0; i < barcodeDevices.Length && i < 2; i++)
+            if (id.status == 3)
             {
-                token.ThrowIfCancellationRequested();
-                var dev = barcodeDevices[i];
-                try
-                {
-                    // reading may block; protect with Task.Run + timeout via CancellationToken
-                    string result = await Task.Run(() => dev.ReadBarcode(3000), token).ConfigureAwait(false);
-                    if (i == 0) Barcode1 = result;
-                    else Barcode2 = result;
-                }
-                catch (OperationCanceledException) { throw; }
-                catch (Exception ex)
-                {
-                    ReportError(ErrorCode.E2, $"讀取條碼例外: {ex.Message}");
-                }
+                ReportError(
+                    ErrorCode.板厚量測異常_讀頭狀態為Error,
+                    $"請程式人員檢查讀頭[{i}]的回傳資料"
+                );
+                CurrentStep = AutoRunStep.錯誤流程;
             }
         }
-        finally
+        if (CurrentStep == AutoRunStep.錯誤流程)
+            return;
+
+        var thickness = Recipe.ThicknessZeroBias + (id0.value + id1.value);
+        var upperLimit = Recipe.Thickness + Recipe.ThicknessPosTolerance;
+        if (thickness >= upperLimit)
         {
-            await Task.Delay(20, token).ConfigureAwait(false);
+            ReportError(ErrorCode.板厚數值超過設定上限, "可能發生疊板或翹板");
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
         }
+        ThicknessMeasured?.Invoke((double)thickness.Value / 1000);
+        await Task.Delay(1, token).ConfigureAwait(false);
     }
 
-    private async Task MeasureThicknessAsync(CancellationToken token)
+    private async Task ScanBarcode(CancellationToken token)
     {
-        // placeholder: 嘗試從可用感測器讀值；目前先做模擬等待
-        await Task.Delay(50, token).ConfigureAwait(false);
-        BoardThickness = Recipe != null ? Recipe.Thickness.ToString() : "N/A";
+        string[] barcodes = new string[Recipe.PcbBlocksY]; //命名不好，此為Strip數量，Y方向
+        IBarcodeReaderDevice reader = null;
+        string findName = string.Empty;
+        string position = string.Empty;
+        if (!Recipe.IsUpperBrBypass)
+        {
+            position = "Upper";
+            findName = DeviceNames.UpperBarcodeReader;
+        }
+        else if (!Recipe.IsLowerBrBypass)
+        {
+            position = "Lower";
+            findName = DeviceNames.LowerBarcodeReader;
+        }
+        foreach (var device in _deviceManager.Devices)
+        {
+            if (device is IBarcodeReaderDevice br)
+            {
+                if (br.Name == findName)
+                {
+                    reader = br;
+                    break;
+                }
+            }
+        }
+        if (reader == null)
+        {
+            ReportError(ErrorCode.程式錯誤_型態不相符, $"查無此{position} barcode reader");
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        SetStepMessage($"{reader.Name}開始讀取{barcodes.Length}個條碼");
+        try
+        {
+            //1. KeyenceReader可以設定一次讀幾個Code，且可設定依據畫面中的條碼位置編號(ex: 由上到下)
+            //2. KeyenceReader可以設定單次觸發的讀取時間，此次為5秒
+            //3. KeyenceReader讀取的條碼數達到設定值就會提早回傳，其它情況就要等到讀取時間結束
+            string result = reader.ReadBarcodes();
+            if (result == "ERROR")
+            {
+                ReportError(ErrorCode.條碼機回傳非數值, $"接收到ERROR，請調整條碼機");
+                BarcodeRereadRequested?.Invoke();
+                CurrentStep = AutoRunStep.錯誤流程;
+                return;
+            }
+            if (reader is KeyenceBarcodeReader)
+                barcodes = result.Split(',');
+            if (barcodes.Length == 0)
+                throw new Exception($"{position} barcode reader 回傳空白文字");
+        }
+        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+        {
+            ReportError(ErrorCode.條碼機讀取超時, $"位置 = {position}, 名稱 = {reader.Name}");
+            BarcodeRereadRequested?.Invoke();
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        catch(SocketException ex) when (ex.SocketErrorCode == SocketError.NotConnected)
+        {
+            ReportError(ErrorCode.條碼機連線已中斷, $"位置 = {position}, 名稱 = {reader.Name}");
+            BarcodeRereadRequested?.Invoke();
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        catch (Exception ex)
+        {
+            ReportError(ErrorCode.程式錯誤_條碼機讀取異常, "捕捉到例外，請程式人員處理");
+            BarcodeRereadRequested?.Invoke();
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        if (Recipe.PcbBlocksY != barcodes.Length)
+        {
+            ReportError(ErrorCode.讀取到的條碼數量與設定條數不符, "");
+            BarcodeRereadRequested?.Invoke();
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        Barcodes = barcodes;
+        BarcodesReaded?.Invoke(barcodes);
+        SetStepMessage($"{position} barcode reader 已讀取到{barcodes.Length}個條碼");
+        CurrentStep = AutoRunStep.Change_A3_XML;
+        await Task.Delay(1, token).ConfigureAwait(false);
+        return;
     }
 
     private async Task CompleteAsync(CancellationToken token)

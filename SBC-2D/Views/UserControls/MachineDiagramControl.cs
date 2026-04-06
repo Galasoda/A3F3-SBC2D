@@ -19,6 +19,11 @@ namespace SBC_2D.Views.UserControls
             InitializeComponent();
         }
 
+        public void ShowThicknessValue(double thickness)
+        {
+            SafeInvoke(() => labelThickness.Text = thickness.ToString());
+        }
+
         public void SystemDisUpdated(IReadOnlyDictionary<int, bool> dis)
         {
             if (dis.ContainsKey(0))
@@ -52,6 +57,19 @@ namespace SBC_2D.Views.UserControls
                 labelNxtReady.BackColor = dos[1] ? Color.Lime : AppTheme.Surface;
             if (dos.ContainsKey(2))
                 labelNxtReady.BackColor = dos[2] ? Color.Lime : AppTheme.Surface;
+        }
+
+        private void SafeInvoke(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(action);
+                return;
+            }
+            else
+            {
+                action();
+            }
         }
     }
 }

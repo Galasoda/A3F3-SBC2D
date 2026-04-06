@@ -11,5 +11,6 @@ namespace SBC_2D.Views.Interfaces
     {
         void SystemDisUpdated(IReadOnlyDictionary<int, bool> dis);
         void SystemDosUpdated(IReadOnlyDictionary<int, bool> dos);
+        void ShowThicknessValue(double thickness);
     }
 }

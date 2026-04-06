@@ -56,7 +56,7 @@ namespace SBC_2D.Shared
             等待進板,
             等待流板到位,
             流板到位確認,
-            測量薄板厚度,
+            測量板子厚度,
             讀取條碼,
             Change_A3_XML,
             讀取XML及擷取BSK資訊,
@@ -67,6 +67,14 @@ namespace SBC_2D.Shared
             將板子移至下游,
             錯誤流程,
             停止自動
+        }
+
+        public enum ErrorType
+        {
+            Code,
+            Process,
+            Timeout,
+            Comparison,
         }
 
         public enum ErrorCode : int
@@ -86,9 +94,11 @@ namespace SBC_2D.Shared
             止擋氣壓缸上升未到位, 
             止擋氣壓缸未降落, 
             止擋氣壓缸異常, 
-            E11, 
-            E12, 
-            E13,
+            程式錯誤_條碼機讀取異常,
+            條碼機讀取超時, 
+            條碼機回傳非數值,
+            讀取到的條碼數量與設定條數不符,
+            條碼機連線已中斷,
             E14,
             E15, 
             E16, 
@@ -99,17 +109,19 @@ namespace SBC_2D.Shared
             E21,
             E22, 
             E23, 
-            E24, 
-            E25, 
+            板厚量測異常_回傳數值無法解析,
+            板厚量測異常_回傳的讀頭數量不符,
+            板厚量測異常_收到錯誤代碼ER, 
+            板厚量測異常_讀頭狀態為Error, 
             E26, 
-            E27, 
+            板厚數值超過設定上限, 
             E28, 
-            E29, 
             E30, 
             E31, 
             E32, 
             E33, 
-            E34 
+            E34,
+            程式錯誤_型態不相符,
         }
 
     }

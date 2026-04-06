@@ -43,7 +43,7 @@ namespace SBC_2D.Infrastructures.Ini
         public long Timeout_WaitExit { get; set; }
         public long Timeout_OnEntry { get; set; }
         public long Timeout_OnExit { get; set; }
-        public long Timeout_MeasuThickness { get; set; }
+        public int Timeout_MeasuThickness { get; set; }
         public long Timeout_ReadBarcode { get; set; }
         public long Timeout_SendBsk { get; set; }
     }

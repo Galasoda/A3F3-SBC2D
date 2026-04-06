@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Security.Policy;
 using System.Text;
 using System.Threading;
@@ -33,7 +34,7 @@ namespace SBC_2D.Infrastructures.Device
             try
             {
                 SocketConfig cfg = config as SocketConfig;
-                if(cfg == null)
+                if (cfg == null)
                     throw new ArgumentException($"{nameof(config)} is not {nameof(SocketConfig)}");
                 if (_socketClient != null)
                     ShutdownClose();
@@ -113,9 +114,9 @@ namespace SBC_2D.Infrastructures.Device
                         if (length <= 0)
                             isNowConnected = false;
                     }
-                    catch 
-                    { 
-                        isNowConnected = false; 
+                    catch
+                    {
+                        isNowConnected = false;
                     }
                 }
 
@@ -133,43 +134,37 @@ namespace SBC_2D.Infrastructures.Device
             }
         }
 
-        public string ReadBarcode(int timeout = 5000)
+        public string ReadBarcodes(int timeout = 5000)
         {
+            //回傳格式: code1,code2\r
             _socketClientLock.Wait();
             try
             {
                 ClearSocketBuffer(_socketClient);
-                int len;
+                int len = 0;
+                int index = 0;
                 byte[] rBuffer = new byte[1024];
                 StringBuilder sb = new StringBuilder();
                 _socketClient.ReceiveTimeout = timeout;
                 _socketClient.Send(Encoding.UTF8.GetBytes("LON\r"));
                 while ((len = _socketClient.Receive(rBuffer)) > 0)
                 {
-                    sb.Append(Encoding.UTF8.GetString(rBuffer, 0, len));
-                    if (sb.ToString().EndsWith("\r")) break;
+                    string responsed = Encoding.UTF8.GetString(rBuffer, 0, len);
+                    sb.Append(responsed);
+                    index = sb.ToString().IndexOf('\r');
+                    if (index == -1)
+                        continue;
+                    break;
                 }
-                if (sb.Equals("ERROR\r"))
-                    return "ERROR";
-                return sb.ToString().Trim('\r', ' ');
+                string result = sb.ToString(0, index);
+                sb.Remove(0, index + 1);
+                return result.Trim('\r', ' ');
             }
             finally
             {
                 _socketClientLock.Release();
             }
         }
-
-        //catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
-        //{
-        //    Logger.RecordLog(SysPaths.MyLogDir, $"{GetType().Name} {IP}:{Port} 讀取條碼超時");
-        //    return "ERROR";
-        //}
-        //catch (Exception ex)
-        //{
-        //    Logger.RecordLog(SysPaths.MyLogDir, $"{GetType().Name} {IP}:{Port} 讀取條碼發生例外: {ex.Message}");
-        //    return "ERROR";
-        //}
-
 
         private void ClearSocketBuffer(Socket socket)
         {

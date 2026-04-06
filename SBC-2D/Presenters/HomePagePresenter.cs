@@ -35,6 +35,7 @@ namespace SBC_2D.Presenters
             _view.StopClicked -= View_StopClicked;
             _machine.StatusChanged -= MachineContext_StatusChanged;
             _machine.StepMessageChanged -= Machine_StepMessageChanged;
+            _machine.ThicknessMeasured -= Machine_ThicknessMeasured;
             _systemIo.SystemDisUpdated -= _view.MachineDiagramView.SystemDisUpdated;
             _systemIo.SystemDosUpdated -= _view.MachineDiagramView.SystemDosUpdated;
             _errorManager.ErrorRaised -= ErrorManager_ErrorRaised;
@@ -46,10 +47,17 @@ namespace SBC_2D.Presenters
             _view.StopClicked += View_StopClicked;
             _machine.StatusChanged += MachineContext_StatusChanged;
             _machine.StepMessageChanged += Machine_StepMessageChanged;
+            _machine.ThicknessMeasured += Machine_ThicknessMeasured;
             _systemIo.SystemDisUpdated += _view.MachineDiagramView.SystemDisUpdated;
             _systemIo.SystemDosUpdated += _view.MachineDiagramView.SystemDosUpdated;
             _errorManager.ErrorRaised += ErrorManager_ErrorRaised;
+
             UpdateButtonStates();
+        }
+
+        private void Machine_ThicknessMeasured(double value)
+        {
+            _view.MachineDiagramView.ShowThicknessValue(value);
         }
 
         private void ErrorManager_ErrorRaised(ErrorEntry error)

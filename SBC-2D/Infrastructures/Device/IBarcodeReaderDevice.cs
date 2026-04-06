@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace SBC_2D.Infrastructures.Device
 {
-    public interface IBarcodeReaderDevice
+    public interface IBarcodeReaderDevice : IDevice
     {
-        string ReadBarcode(int timeout = 5000);
+        string ReadBarcodes(int timeout = 5000);
     }
 }
