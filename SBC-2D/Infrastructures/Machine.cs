@@ -1,4 +1,5 @@
 ﻿using SBC_2D.Infrastructures;
+using SBC_2D.Infrastructures.Bsk;
 using SBC_2D.Infrastructures.Device;
 using SBC_2D.Infrastructures.Error;
 using SBC_2D.Infrastructures.Ini;
@@ -7,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
@@ -132,6 +134,20 @@ public class Machine
                     case AutoRunStep.讀取條碼:
                     {
                         await ScanBarcode(token).ConfigureAwait(false);
+                        break;
+                    }
+
+                    case AutoRunStep.MakeA3XML:
+                    {
+                        var xmlPaths = await MakeXmlPath(token).ConfigureAwait(false);
+                        await SafeCopyXml(xmlPaths, token);
+                        CurrentStep = AutoRunStep.讀取XML及擷取BSK資訊;
+                        break;
+                    }
+
+                    case AutoRunStep.讀取XML及擷取BSK資訊:
+                    {
+
                         break;
                     }
 
@@ -496,7 +512,7 @@ public class Machine
             CurrentStep = AutoRunStep.錯誤流程;
             return;
         }
-        catch(SocketException ex) when (ex.SocketErrorCode == SocketError.NotConnected)
+        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.NotConnected)
         {
             ReportError(ErrorCode.條碼機連線已中斷, $"位置 = {position}, 名稱 = {reader.Name}");
             BarcodeRereadRequested?.Invoke();
@@ -520,11 +536,148 @@ public class Machine
         Barcodes = barcodes;
         BarcodesReaded?.Invoke(barcodes);
         SetStepMessage($"{position} barcode reader 已讀取到{barcodes.Length}個條碼");
-        CurrentStep = AutoRunStep.Change_A3_XML;
+        CurrentStep = AutoRunStep.MakeA3XML;
         await Task.Delay(1, token).ConfigureAwait(false);
         return;
     }
 
+    private async Task<List<string>> MakeXmlPath(CancellationToken token)
+    {
+        List<string> filePath = new List<string>();
+        foreach (var barcode in Barcodes)
+        {
+            try
+            {
+                var parts = barcode.Split('-');
+                if (parts.Length != 4)
+                {
+                    ReportError(ErrorCode.Barcode格式錯誤, "破折號分隔數量不等於4");
+                    CurrentStep = AutoRunStep.錯誤流程;
+                    return filePath;
+                }
+                string folderName = parts[1] + _setup.PathConfig.InsertType + parts[2];
+                string path = Path.Combine(_setup.PathConfig.XmlDir, folderName, barcode + ".XML");
+                filePath.Add(path);
+            }
+            catch (Exception ex)
+            {
+                //改codeexception事件，並跳到錯誤流程
+                ReportError(ErrorCode.程式錯誤_捕捉到執行例外, ex.Message);
+                CurrentStep = AutoRunStep.錯誤流程;
+            }
+        }
+        await Task.Delay(1, token).ConfigureAwait(false);
+        return filePath;
+    }
+
+
+    private async Task SafeCopyXml(List<string> filePaths, CancellationToken token)
+    {
+        try
+        {
+            string tempDir = _setup.PathConfig.TempXmlDir;
+            foreach (var file in new DirectoryInfo(tempDir).GetFiles())
+                file.Delete();
+            foreach (var path in filePaths)
+            {
+                string fileName = Path.GetFileName(path ?? string.Empty);
+                string tempPath = Path.Combine(tempDir, fileName);
+                File.Copy(path, tempPath, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            ReportError(ErrorCode.程式錯誤_捕捉到執行例外, ex.Message);
+            CurrentStep = AutoRunStep.錯誤流程;
+        }
+        await Task.Delay(1, token).ConfigureAwait(false);
+        return;
+    }
+
+    private async Task ExtractBakNumbers(CancellationToken token)
+    {
+        !!!!!!!!!!!!!!!!!!
+        int startNo = 1;
+        int totalCount = 0;
+        int[] skipNos = new int[0];
+        string tempDir = _setup.PathConfig.TempXmlDir;
+        bool isError = false;
+        FileInfo[] xmlFiles = new DirectoryInfo(tempDir).GetFiles(); //Strip
+
+        foreach (FileInfo file in xmlFiles)
+        {
+            SetStepMessage($"開始讀取{file.Name}");
+            string path = file.FullName;
+            var bskab = new BskArrayBuilder(path);
+            if (!bskab.Phrase())
+            {
+                isError = true;
+                continue;
+            }
+            else
+            {
+                if (!((Recipe.PcbBlockX * Recipe.PcbBlocksX) == bskab.LayoutX))
+                {
+                    isError = true;
+                    continue;
+                }
+                if(!((Recipe.PcbBlockY * Recipe.PcbBlockY) == bskab.LayoutY))
+                {
+                    isError = true;
+                    continue;
+                }
+                if(!(bskab.LayoutX > 0 && Recipe.PcbBlockX > 0 && ((bskab.LayoutX % Recipe.PcbBlockX) == 0)))
+                {
+                    isError = true;
+                    continue;
+                }
+                if (!(bskab.LayoutY > 0 && Recipe.PcbBlockY > 0 && ((bskab.LayoutY % Recipe.PcbBlockY) == 0)))
+                {
+                    isError = true;
+                    continue;
+                }
+
+                string[,] frontCodes = bskab.Codes;
+                string[,] backCodes = bskab.RotateLeftRight(bskab.Codes);
+                int[,] index = bskab.CreateLayoutIndex(1, bskab.LayoutX, bskab.LayoutY, ArraySortType.upperLeft_H);
+                int[,] blocksIndex = new int[bskab.LayoutY, bskab.LayoutX];
+                for (int row = 0; row < bskab.LayoutY; row++)
+                {
+                    for (int col = 0; col < bskab.LayoutX; col++)
+                    {
+                        int oldNumber = index[row, col];
+                        int newNumber = bskab.ConvertIndex(
+                            oldNumber,
+                            bskab.LayoutX,
+                            bskab.LayoutY,
+                            bskab.LayoutX / Recipe.PcbBlockX,
+                            bskab.LayoutY / Recipe.PcbBlockY,
+                            ArraySortType.lowerRight_H);
+                        blocksIndex[row, col] = newNumber + startNo - 1;
+                    }
+                }
+                int[] fSkips = bskab.TakeSkips(frontCodes, blocksIndex);
+                int[] bSkips = bskab.TakeSkips(backCodes, blocksIndex);
+                bskab.FrontSkips = fSkips;
+                bskab.BackSkips = bSkips;
+
+                int count = bskab.TotalCount;
+                int[] nos = Recipe.IsPcbRotate ? bskab.BackSkips : bskab.FrontSkips;
+                startNo += count;
+                totalCount += count;
+                skipNos = skipNos.Concat(nos).ToArray();
+            }
+        }
+        if (isError)
+        {
+            CurrentStep = AutoRunStep.錯誤流程;
+            return;
+        }
+        RemoteBskHelper.Update(totalCount, skipNos);
+        //_dataFlow.UpdateBskNos(skipNos);
+        CurrentStep = AutoRunStep.等待下游要板訊號;
+        return;
+    }
     private async Task CompleteAsync(CancellationToken token)
     {
         // Do finalization — 設定結果、紀錄、回復狀態

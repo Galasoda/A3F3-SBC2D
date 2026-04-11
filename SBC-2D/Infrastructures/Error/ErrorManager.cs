@@ -20,7 +20,7 @@ namespace SBC_2D.Infrastructures.Error
         {
             if (code == ErrorCode.NoError) return;
             var entry = new ErrorEntry(code, message ?? string.Empty);
-            _activeErrors[code] = entry;
+            _activeErrors.TryAdd(code, entry);
             try { ErrorRaised?.Invoke(entry); } catch { }
         }
 

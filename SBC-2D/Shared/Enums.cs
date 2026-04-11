@@ -49,6 +49,19 @@ namespace SBC_2D.Shared
             En
         }
 
+        public enum ArraySortType
+        {
+            upperLeft_H,   // 左上 → 右下 (橫向)
+            upperRight_H,  // 右上 → 左下 (橫向)
+            lowerRight_H,  // 右下 → 左上 (橫向)
+            lowerLeft_H,   // 左下 → 右上 (橫向)
+
+            upperLeft_V,   // 左上 → 右下 (直向)
+            upperRight_V,  // 右上 → 左下 (直向)
+            lowerRight_V,  // 右下 → 左上 (直向)
+            lowerLeft_V    // 左下 → 右上 (直向)
+        }
+
         public enum AutoRunStep
         {
             檢查輸送帶,
@@ -58,7 +71,7 @@ namespace SBC_2D.Shared
             流板到位確認,
             測量板子厚度,
             讀取條碼,
-            Change_A3_XML,
+            MakeA3XML,
             讀取XML及擷取BSK資訊,
             發送Bsk資訊,
             等待止檔氣壓缸下降,
@@ -80,6 +93,7 @@ namespace SBC_2D.Shared
         public enum ErrorCode : int
         {
             NoError,
+            程式錯誤_捕捉到執行例外,
             ES1,
             ES2,
             EL1,
@@ -99,7 +113,7 @@ namespace SBC_2D.Shared
             條碼機回傳非數值,
             讀取到的條碼數量與設定條數不符,
             條碼機連線已中斷,
-            E14,
+            讀取BSK資訊失敗,
             E15, 
             E16, 
             E17,
@@ -120,7 +134,7 @@ namespace SBC_2D.Shared
             E31, 
             E32, 
             E33, 
-            E34,
+            Barcode格式錯誤,
             程式錯誤_型態不相符,
         }
 

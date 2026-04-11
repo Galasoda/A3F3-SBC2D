@@ -67,6 +67,11 @@ namespace SBC_2D.Domain.Servicies
             else
                 path.XmlDir = basePath + xmlDir;
 
+            if (!IniFile.TryGetValue(section, "TempXmlDir", "", _store.SetupFilePath, out string tempXmlDir))
+                bugInfo += "Missing TempXmlDir.\r\n";
+            else
+                path.TempXmlDir = basePath + tempXmlDir;
+
             if (!IniFile.TryGetValue(section, "LockState", "", _store.SetupFilePath, out string lockState))
                 bugInfo += "Missing LockState.\r\n";
             else

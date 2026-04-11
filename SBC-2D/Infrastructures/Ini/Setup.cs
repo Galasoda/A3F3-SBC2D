@@ -30,6 +30,7 @@ namespace SBC_2D.Infrastructures.Ini
         public string InsertType { get; set; }
         public string BskDir { get; set; }
         public string XmlDir { get; set; }
+        public string TempXmlDir { get; set; }
         public string LockState { get; set; }
         public string SqLiteFile { get; set; }
     }

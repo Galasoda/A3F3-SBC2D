@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SBC_2D.Infrastructures.Bsk
 {
-    public static class BskHelper
+    public static class RemoteBskHelper
     {
         private static string _dirPath = string.Empty;
         private const string _rbskFileName = "RemoteBoardSkip.ini";

@@ -207,7 +207,8 @@
   <ItemGroup>
     <Compile Include="Domain\Servicies\RecipeService.cs" />
     <Compile Include="Domain\Servicies\UserService.cs" />
-    <Compile Include="Infrastructures\Bsk\BskHelper.cs" />
+    <Compile Include="Infrastructures\Bsk\BskArrayBuilder.cs" />
+    <Compile Include="Infrastructures\Bsk\RemoteBskHelper.cs" />
     <Compile Include="Infrastructures\Device\DeviceNames.cs" />
     <Compile Include="Infrastructures\Device\Dlen1.cs" />
     <Compile Include="Infrastructures\Device\IBarcodeReaderDevice.cs" />
