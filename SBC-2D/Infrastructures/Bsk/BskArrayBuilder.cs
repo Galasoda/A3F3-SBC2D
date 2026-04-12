@@ -29,8 +29,72 @@ namespace SBC_2D.Infrastructures.Bsk
             _xdoc = XDocument.Load(Path);
         }
 
-        public bool Phrase()
+        public bool PhraseFile()
         {
+            try
+            {
+                XElement xeLayouts = _xdoc.Root
+                    .Elements()
+                    .FirstOrDefault(e => e.Name.LocalName == "Layouts")
+                    ?? throw new Exception("找不到 Layouts 節點");
+
+                XElement xeLayout = xeLayouts
+                    .Descendants()
+                    .FirstOrDefault(e =>
+                        e.Name.LocalName == "Layout" &&
+                        e.Attribute("LayoutId")?.Value != "Strip")
+                    ?? throw new Exception("找不到 Layout 節點");
+
+                XElement xeDimension = xeLayout
+                    .Elements()
+                    .FirstOrDefault(e => e.Name.LocalName == "Dimension")
+                    ?? throw new Exception("Layout 缺少 Dimension");
+
+                string layoutX = xeDimension.Attribute("X")?.Value;
+                if (!int.TryParse(layoutX, out var x))
+                    throw new Exception($"整數轉換失敗: Layout Dimension X = {layoutX}");
+                LayoutX = x;
+                string layoutY = xeDimension.Attribute("Y")?.Value;
+                if (!int.TryParse(layoutY, out var y))
+                    throw new Exception($"整數轉換失敗: Layout Dimension Y = {layoutY}");
+                LayoutY = y;
+                TotalCount = LayoutX * LayoutY;
+                Codes = new string[LayoutY, LayoutX];
+
+                XElement xeSubstrateMaps = _xdoc.Root
+                    .Elements()
+                    .FirstOrDefault(e => e.Name.LocalName == "SubstrateMaps")
+                    ?? throw new Exception("缺少 SubstrateMaps 節點");
+
+                var binCodesList = xeSubstrateMaps
+                    .Descendants()
+                    .Where(e => e.Name.LocalName == "BinCode")
+                    .ToList();
+
+                if (binCodesList.Count < LayoutY)
+                    throw new Exception($"BinCode {binCodesList.Count} 不等於 LayoutY {LayoutY}");
+
+                int codeLength = 4;
+                for (int row = 0; row < LayoutY; row++)
+                {
+                    string binCodes = binCodesList[row].Value;
+                    for (int column = 0; column < LayoutX; column++)
+                    {
+                        int start = column * codeLength;
+                        if (start >= binCodes.Length) break;
+
+                        string binCode = binCodes.Substring(start, Math.Min(codeLength, binCodes.Length - start));
+                        Codes[row, column] = binCode;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
             return ParseLayoutDimensions(_xdoc) && ParseBinCodes(_xdoc);
         }
 
@@ -51,81 +115,17 @@ namespace SBC_2D.Infrastructures.Bsk
             return rotatedCodes;
         }
 
-
-        private bool ParseLayoutDimensions(XDocument xdoc)
+        private bool ParseBinCodes(XDocument xdoc)
         {
             try
             {
-                XElement xeLayouts = xdoc.Root
-                    .Elements()
-                    .FirstOrDefault(e => e.Name.LocalName == "Layouts")
-                    ?? throw new Exception("找不到 Layouts 節點");
 
-                XElement xeLayout = xeLayouts
-                    .Descendants()
-                    .FirstOrDefault(e =>
-                        e.Name.LocalName == "Layout" &&
-                        e.Attribute("LayoutId")?.Value != "Strip")
-                    ?? throw new Exception("找不到 Layout 節點");
-
-                XElement xeDimension = xeLayout
-                    .Elements()
-                    .FirstOrDefault(e => e.Name.LocalName == "Dimension")
-                    ?? throw new Exception("Layout 缺少 Dimension");
-
-                LayoutX = int.TryParse(xeDimension.Attribute("X")?.Value, out var x) ? x : 0;
-                LayoutY = int.TryParse(xeDimension.Attribute("Y")?.Value, out var y) ? y : 0;
-
-                if (LayoutX <= 0 || LayoutY <= 0)
-                    throw new Exception($"Layout 尺寸錯誤: X={LayoutX}, Y={LayoutY}");
-
-                TotalCount = LayoutX * LayoutY;
             }
             catch (Exception ex)
             {
                 return false;
             }
-            Codes = new string[LayoutY, LayoutX];
             return true;
-        }
-
-        private bool ParseBinCodes(XDocument xdoc)
-        {
-            bool isParseOk = true;
-            try
-            {
-                XElement xeSubstrateMaps = xdoc.Root
-                    .Elements()
-                    .FirstOrDefault(e => e.Name.LocalName == "SubstrateMaps")
-                    ?? throw new Exception("缺少 SubstrateMaps 節點");
-
-                var binCodesList = xeSubstrateMaps
-                    .Descendants()
-                    .Where(e => e.Name.LocalName == "BinCode")
-                    .ToList();
-
-                if (binCodesList.Count < LayoutY)
-                    throw new Exception($"BinCode 列數不足，預期 {LayoutY}，實際 {binCodesList.Count}");
-
-                int codeLength = 4;
-                for (int row = 0; row < LayoutY; row++)
-                {
-                    string binCodes = binCodesList[row].Value;
-                    for (int column = 0; column < LayoutX; column++)
-                    {
-                        int start = column * codeLength;
-                        if (start >= binCodes.Length) break;
-
-                        string binCode = binCodes.Substring(start, Math.Min(codeLength, binCodes.Length - start));
-                        Codes[row, column] = binCode;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                isParseOk = false;
-            }
-            return isParseOk;
         }
 
         public int[] TakeSkips(string[,] Codes, int[,] indexes)

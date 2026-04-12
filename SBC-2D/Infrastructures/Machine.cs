@@ -26,8 +26,8 @@ public class Machine
     private CancellationTokenSource _ctsAutoRun;
     public Recipe Recipe { get; set; }
     public string BskNo { get; set; }
-    public int Quantity { get; set; }
-    public string BoardThickness { get; set; }
+    public int Pqty { get; set; }
+    public double BoardThickness { get; set; }
     public string[] Barcodes { get; private set; }
     public int ExecutedBskResult { get; set; }
     public MachineStatus Status { get; private set; }
@@ -39,6 +39,7 @@ public class Machine
     public event Action<double> ThicknessMeasured;
     public event Action BarcodeRereadRequested;
     public event Action<string[]> BarcodesReaded;
+    public event Action CycleEnded;
 
     public bool IsAutoRunning
     {
@@ -147,9 +148,17 @@ public class Machine
 
                     case AutoRunStep.讀取XML及擷取BSK資訊:
                     {
-
+                        await ExtractBakNumbers(token).ConfigureAwait(false);
                         break;
                     }
+
+                    case AutoRunStep.發送Bsk資訊:
+                    {
+                        await SendBskToNxt(token).ConfigureAwait(false);
+                        break;
+                    }
+
+
 
                     case AutoRunStep.錯誤流程:
                     {
@@ -243,8 +252,7 @@ public class Machine
             ControlDo(5, true);
             SetStepMessage("關閉停板訊號");
             ControlDo(3, false);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            Stopwatch stopwatch = Stopwatch.StartNew();
             while (!_ctsAutoRun.IsCancellationRequested)
             {
                 bool hasStopperDroped = GetDi(4) && !GetDi(5);
@@ -277,8 +285,7 @@ public class Machine
             SetStepMessage("XML Mapping Mode");
             SetStepMessage("止檔氣壓缸上升");
             ControlDo(4, true);
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
+            Stopwatch stopwatch = Stopwatch.StartNew();
             while (!_ctsAutoRun.IsCancellationRequested)
             {
                 bool hasStopperRaised = !GetDi(4) && GetDi(5);
@@ -343,8 +350,7 @@ public class Machine
     private async Task WaitBoardInplace(CancellationToken token)
     {
         SetStepMessage("等待流板到位");
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
+        var stopwatch = Stopwatch.StartNew();
         while (!_ctsAutoRun.IsCancellationRequested)
         {
             bool isBoardInPlace = GetDi(2);
@@ -449,7 +455,8 @@ public class Machine
             CurrentStep = AutoRunStep.錯誤流程;
             return;
         }
-        ThicknessMeasured?.Invoke((double)thickness.Value / 1000);
+        BoardThickness = (double)thickness.Value / 1000;
+        ThicknessMeasured?.Invoke(BoardThickness);
         await Task.Delay(1, token).ConfigureAwait(false);
     }
 
@@ -596,7 +603,6 @@ public class Machine
 
     private async Task ExtractBakNumbers(CancellationToken token)
     {
-        !!!!!!!!!!!!!!!!!!
         int startNo = 1;
         int totalCount = 0;
         int[] skipNos = new int[0];
@@ -609,64 +615,43 @@ public class Machine
             SetStepMessage($"開始讀取{file.Name}");
             string path = file.FullName;
             var bskab = new BskArrayBuilder(path);
-            if (!bskab.Phrase())
-            {
-                isError = true;
+            bool isPhraseOk = bskab.PhraseFile();
+            bool isLayoutXMatch = (Recipe.PcbBlockX * Recipe.PcbBlocksX) == bskab.LayoutX;
+            bool isLayoutYMatch = (Recipe.PcbBlockY * Recipe.PcbBlocksY) == bskab.LayoutY;
+            bool isLayoutXValid = bskab.LayoutX > 0 && Recipe.PcbBlockX > 0 && bskab.LayoutX % Recipe.PcbBlockX == 0;
+            bool isLayoutYValid = bskab.LayoutY > 0 && Recipe.PcbBlockY > 0 && bskab.LayoutY % Recipe.PcbBlockY == 0;
+            bool isNeedSkipLoop = !(isPhraseOk && isLayoutXMatch && isLayoutYMatch && isLayoutXValid && isLayoutYValid);
+            if (isNeedSkipLoop)
                 continue;
-            }
-            else
+            string[,] frontCodes = bskab.Codes;
+            string[,] backCodes = bskab.RotateLeftRight(bskab.Codes);
+            int[,] index = bskab.CreateLayoutIndex(1, bskab.LayoutX, bskab.LayoutY, ArraySortType.upperLeft_H);
+            int[,] indexs = new int[bskab.LayoutY, bskab.LayoutX];
+            for (int row = 0; row < bskab.LayoutY; row++)
             {
-                if (!((Recipe.PcbBlockX * Recipe.PcbBlocksX) == bskab.LayoutX))
+                for (int col = 0; col < bskab.LayoutX; col++)
                 {
-                    isError = true;
-                    continue;
+                    int oldNumber = index[row, col];
+                    int newNumber = bskab.ConvertIndex(
+                        oldNumber,
+                        bskab.LayoutX,
+                        bskab.LayoutY,
+                        bskab.LayoutX / Recipe.PcbBlockX,
+                        bskab.LayoutY / Recipe.PcbBlockY,
+                        ArraySortType.lowerRight_H);
+                    indexs[row, col] = newNumber + startNo - 1;
                 }
-                if(!((Recipe.PcbBlockY * Recipe.PcbBlockY) == bskab.LayoutY))
-                {
-                    isError = true;
-                    continue;
-                }
-                if(!(bskab.LayoutX > 0 && Recipe.PcbBlockX > 0 && ((bskab.LayoutX % Recipe.PcbBlockX) == 0)))
-                {
-                    isError = true;
-                    continue;
-                }
-                if (!(bskab.LayoutY > 0 && Recipe.PcbBlockY > 0 && ((bskab.LayoutY % Recipe.PcbBlockY) == 0)))
-                {
-                    isError = true;
-                    continue;
-                }
-
-                string[,] frontCodes = bskab.Codes;
-                string[,] backCodes = bskab.RotateLeftRight(bskab.Codes);
-                int[,] index = bskab.CreateLayoutIndex(1, bskab.LayoutX, bskab.LayoutY, ArraySortType.upperLeft_H);
-                int[,] blocksIndex = new int[bskab.LayoutY, bskab.LayoutX];
-                for (int row = 0; row < bskab.LayoutY; row++)
-                {
-                    for (int col = 0; col < bskab.LayoutX; col++)
-                    {
-                        int oldNumber = index[row, col];
-                        int newNumber = bskab.ConvertIndex(
-                            oldNumber,
-                            bskab.LayoutX,
-                            bskab.LayoutY,
-                            bskab.LayoutX / Recipe.PcbBlockX,
-                            bskab.LayoutY / Recipe.PcbBlockY,
-                            ArraySortType.lowerRight_H);
-                        blocksIndex[row, col] = newNumber + startNo - 1;
-                    }
-                }
-                int[] fSkips = bskab.TakeSkips(frontCodes, blocksIndex);
-                int[] bSkips = bskab.TakeSkips(backCodes, blocksIndex);
-                bskab.FrontSkips = fSkips;
-                bskab.BackSkips = bSkips;
-
-                int count = bskab.TotalCount;
-                int[] nos = Recipe.IsPcbRotate ? bskab.BackSkips : bskab.FrontSkips;
-                startNo += count;
-                totalCount += count;
-                skipNos = skipNos.Concat(nos).ToArray();
             }
+            int[] fSkips = bskab.TakeSkips(frontCodes, indexs);
+            int[] bSkips = bskab.TakeSkips(backCodes, indexs);
+            bskab.FrontSkips = fSkips;
+            bskab.BackSkips = bSkips;
+
+            int count = bskab.TotalCount;
+            int[] nos = Recipe.IsPcbRotate ? bskab.BackSkips : bskab.FrontSkips;
+            startNo += count;
+            totalCount += count;
+            skipNos = skipNos.Concat(nos).ToArray();
         }
         if (isError)
         {
@@ -676,8 +661,166 @@ public class Machine
         RemoteBskHelper.Update(totalCount, skipNos);
         //_dataFlow.UpdateBskNos(skipNos);
         CurrentStep = AutoRunStep.等待下游要板訊號;
+        await Task.Delay(1, token).ConfigureAwait(false);
         return;
     }
+
+    public async Task WaitDownStreamRequest(CancellationToken token)
+    {
+        SetStepMessage($"等待下游要板訊號");
+        if (GetDi(0))
+        {
+            SetStepMessage($"已接收到下游要板訊號");
+            CurrentStep = AutoRunStep.發送Bsk資訊;
+            return;
+        }
+        await Task.Delay(1, token).ConfigureAwait(false);
+    }
+
+    public async Task SendBskToNxt(CancellationToken token)
+    {
+        SetStepMessage($"發送Bsk資訊");
+        RemoteBskHelper.Execute();
+        await Task.Delay(2000, token).ConfigureAwait(false);
+        int BskStatus = RemoteBskHelper.ExecuteResult();
+        if (BskStatus == 1)
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            while (!_ctsAutoRun.IsCancellationRequested)
+            {
+                if (RemoteBskHelper.ExecuteResult() != 1)
+                    break;
+                if (stopwatch.ElapsedMilliseconds > _setup.ProductionConfig.Timeout_SendBsk)
+                {
+                    ReportError(ErrorCode.發送BSK資訊失敗, RemoteBskHelper.ErrMsg);
+                    CurrentStep = AutoRunStep.錯誤流程;
+                    return;
+                }
+                await Task.Delay(1, token).ConfigureAwait(false);
+            }
+        }
+        else
+        {
+            //BskStatus = 0; //FAKE
+            switch (BskStatus)
+            {
+                case 0:
+                {
+                    SetStepMessage($"[{BskStatus}] Server已經成功回傳");
+                    SetStepMessage($"止檔氣壓缸下降");
+                    ControlDo(4, false);
+                    Stopwatch stopwatch = Stopwatch.StartNew();
+                    while (!_ctsAutoRun.IsCancellationRequested)
+                    {
+                        bool hasStopperDroped = GetDi(4) && !GetDi(5);
+                        if (stopwatch.ElapsedMilliseconds > _setup.ProductionConfig.Timeout_WaitStopper)
+                        {
+                            bool hasStopperAbnormal = (!GetDi(4) && !GetDi(5)) || (GetDi(4) && GetDi(5));
+                            if (hasStopperAbnormal)
+                                ReportError(ErrorCode.止擋氣壓缸異常, "請檢查訊號、氣源、機構");
+                            else if (!hasStopperDroped)
+                                ReportError(ErrorCode.止擋氣壓缸未降落, "請檢查氣源和機構");
+                            if (!hasStopperDroped || !hasStopperAbnormal)
+                            {
+                                CurrentStep = AutoRunStep.錯誤流程;
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            if (hasStopperDroped)
+                            {
+                                SetStepMessage($"止檔氣壓缸下到位ON");
+                                SetStepMessage("開啟停板按鈕訊號");
+                                ControlDo(2, true);
+                                await Task.Delay(_setup.ProductionConfig.Delay_BoardStopAck);
+                                SetStepMessage("關閉停板按鈕訊號");
+                                ControlDo(2, false);
+                                await Task.Delay(_setup.ProductionConfig.Delay_BoardStopAck);
+                                CurrentStep = AutoRunStep.等待流板抵達出口;
+                                return;
+                            }
+                        }
+                        await Task.Delay(1, token).ConfigureAwait(false);
+                    }
+                    break;
+                }
+                case 2:
+                {
+                    ReportError(ErrorCode.發送BSK資訊失敗, RemoteBskHelper.ErrMsg);
+                    CurrentStep = AutoRunStep.錯誤流程;
+                    break;
+                }
+            }
+            Array.Clear(Barcodes, 0, Barcodes.Length);
+        }
+        await Task.Delay(1, token).ConfigureAwait(false);
+    }
+
+    private async Task WaitBoardToExit(CancellationToken token)
+    {
+        SetStepMessage("等待流板抵達出口");
+        Stopwatch stopwatch = Stopwatch.StartNew();
+        while (!_ctsAutoRun.IsCancellationRequested)
+        {
+            if (stopwatch.ElapsedMilliseconds > _setup.ProductionConfig.Timeout_OnExit) //命名不好
+            {
+                ReportError(ErrorCode.等待板子抵達出口已超時, "請檢查是否卡板");
+                CurrentStep = AutoRunStep.錯誤流程;
+                return;
+            }
+            bool isArrived = GetDi(3) && GetDi(1);
+            if (isArrived)
+            {
+                SetStepMessage("流板已經抵達出口");
+                SetStepMessage("開啟準備送板訊號");
+                ControlDo(1, true);
+                CurrentStep = AutoRunStep.將板子移至下游;
+                return;
+            }
+            await Task.Delay(1, token).ConfigureAwait(false);
+        }
+        await Task.Delay(1, token).ConfigureAwait(false);
+    }
+
+    private async Task MoveoutBoard(CancellationToken token)
+    {
+        bool isCanMoveout = GetDi(0) && GetDi(1) && GetDo(1);
+        if (isCanMoveout)
+        {
+            SetStepMessage("啟動連接要板訊號(CV Link ON)");
+            SetStepMessage("將板子移至下游");
+            ControlDo(0, true);
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            while (!_ctsAutoRun.IsCancellationRequested)
+            {
+                if (stopwatch.ElapsedMilliseconds > _setup.ProductionConfig.Timeout_WaitExit)
+                {
+                    ReportError(ErrorCode.等待板子移出已超時, "請檢查是否卡板");
+                    CurrentStep = AutoRunStep.錯誤流程;
+                    return;
+                }
+                if (!GetDi(3))
+                {
+                    SetStepMessage("板子已離開出口");
+                    Array.Clear(Barcodes, 0, Barcodes.Length);
+                    Pqty++;
+                    BoardThickness = 0;
+                    CycleEnded?.Invoke();
+                    //_dataFlow.UpdatePqty(Pqty);
+                    //_dataFlow.UpdateBarcode("");
+                    //_dataFlow.UpdateThickness(0);
+                    //_dataFlow.UpdateBskNos(Array.Empty<int>());
+                    CurrentStep = AutoRunStep.檢查輸送帶;
+                    //await ClearDos(4, 8, 9, 10);
+                    return;
+                }
+                await Task.Delay(1, token).ConfigureAwait(false);
+            }
+            return;
+        }
+    }
+
     private async Task CompleteAsync(CancellationToken token)
     {
         // Do finalization — 設定結果、紀錄、回復狀態
